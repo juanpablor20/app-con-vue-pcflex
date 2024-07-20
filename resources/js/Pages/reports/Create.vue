@@ -36,7 +36,7 @@
       <div class="form-footer">
         <div class="text-end">
           <div class="d-flex">
-            <a @click="cancel" class="btn btn-danger">Cancelar</a>
+            <SecondaryButton @click="cancel" class="btn btn-danger">Cancelar</SecondaryButton>
             <button @click="submit" class="btn btn-primary ms-auto">Submit</button>
           </div>
         </div>
@@ -49,7 +49,7 @@
   import { useForm } from '@inertiajs/vue3';
   import { Head } from "@inertiajs/vue3";
   import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-  
+  import SecondaryButton from "@/Components/SecondaryButton.vue";
   const form = useForm({
     description: '',
     service_id: '{{ $serviceId }}', // Puedes setear este valor desde tu script al cargar la página

@@ -44,7 +44,7 @@ class PrestamosController extends Controller
             ->first();
 
         if ($prestamoMismoTipoCaracteristicas) {
-            return redirect()->back()->withErrors(['error', 'No se puede prestar dos veces un equipo con características similares.']);
+            return redirect()->back()->withErrors(['error' => 'No se puede prestar dos veces un equipo con características similares.']);
         }
 
         $serviceId = Services::where('user_borrower_id', $user->id)->pluck('id');

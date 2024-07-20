@@ -20,6 +20,7 @@ class reportsController extends Controller
     {
         return Inertia::render('reports/Create');
     }
+    
     public function store(Request $request)
 
     { 
@@ -38,7 +39,6 @@ class reportsController extends Controller
         ]);
 
         $service = Services::find($request->input('service_id'));
-
         $disability = Disability::create([
             'description' => $request->input('description'),
             'end_date' => $request->input('end_date'),
@@ -46,13 +46,12 @@ class reportsController extends Controller
         ]);
 
         //$this->checkAndFireEndDateEvent($disability);
-
         $disability->punishment_date = Carbon::now();
         $disability->save();
 
      //   event(new DisabilityReportCreated($service));
 
-        //return redirect()->route('disabilities.index')->with('success', 'Reporte Creado con exito.');
+        return redirect()->route('repors.index')->with(['success' => 'Reporte Creado con exito.']);
 
     }
 }

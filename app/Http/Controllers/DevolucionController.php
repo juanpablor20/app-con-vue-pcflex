@@ -73,10 +73,10 @@ class DevolucionController extends Controller
             {
                 $service->user_returner_id = $user->id;
                 $service->save();
-                return "enviar ala ruta";
-                //return redirect()->route('disabilities.create', ['service_id' => $service->id]);
+                return redirect()->route('repors.create', ['service_id' => $service->id]);
 
             }
+            
             return redirect()->back()->with(['success' => 'Devolucion Exitosa..']);
 
         }catch(\Exception $e) {
