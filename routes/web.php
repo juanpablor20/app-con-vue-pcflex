@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
 
 //rutas reportes
 Route::resource('/repors', reportsController::class);
+Route::get('/Repors', [reportsController::class, 'crear'])->name('Repors.crear');
+Route::post('/Repors', [reportsController::class, 'creacion'])->name('Repors.creacion');
     //rutas de servicio 
     Route::get('/info/{id}', [ServiceController::class, 'details'])->name('info.details');
     Route::get('historial', [ServiceController::class, 'historico'])->name('historial.historico');

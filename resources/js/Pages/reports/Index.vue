@@ -62,13 +62,13 @@ const activateUser = (user) => {
 </script>
 
 <template>
-    <Head title="Usuarios" />
+    <Head title="Reportes" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Usuarios</h2>
-                <NavLink :href="route('repors.create')">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Reportes</h2>
+                <NavLink :href="route('Repors.crear')">
                     <CreateButton>
                         <i class="fas fa-plus mr-1"></i>
                         Crear
@@ -87,12 +87,7 @@ const activateUser = (user) => {
                     </svg>
                 </div>
 
-                <div class="px-4 py-2 -mx-3">
-                    <div class="mx-3">
-                        <span class="font-semibold text-blue-500">Info</span>
-                        <p class="text-sm text-gray-600">Sample table page</p>
-                    </div>
-                </div>
+               
             </div>
 
             <div class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs">
@@ -101,17 +96,26 @@ const activateUser = (user) => {
                         <thead>
                             <tr
                                 class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b">
-                                <th class="px-4 py-3">Name</th>
-                                <th class="px-4 py-3">Apellido</th>
-                                <th class="px-4 py-3">Número de Identificación</th>
-                                <th class="px-4 py-3">Sexo</th>
-                                <th class="px-4 py-3">Roll</th>
+                                <th class="px-4 py-3">Descripción</th>
+                                <th class="px-4 py-3">Fecha Inicio</th>
+                                <th class="px-4 py-3">Fecha Fin</th>
+                                
                                 <th class="px-4 py-3">Estado</th>
                                 <th class="px-4 py-3">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y">
                             <tr v-for="repor in repors.data" :key="repor.id" class="text-gray-700">
+                                <td class="px-4 py-3 text-sm">
+                                    {{ repor.description }}
+                                </td>
+                                <td class="px-4 py-3 text-sm">
+                                    {{ repor.punishment_date }}
+                                </td>
+                                <td class="px-4 py-3 text-sm">
+                                    {{ repor.end_date }}
+                                </td>
+
                                 <td class="px-4 py-3 text-sm">
                                     {{ repor.status }}
                                 </td>
