@@ -30,10 +30,10 @@ class RolesAndPermissionsSeeder extends Seeder
         $gestionarRecursos->assignRole($bibliotecario);
 
 
-        $user = User::find(1); // Encuentra al usuario por su ID (o crea uno si no existe)
+        $user = User::find(2); // Encuentra al usuario por su ID (o crea uno si no existe)
         $user->assignRole($coordinador);
 
-        $user2 = User::find(2); // Encuentra otro usuario por su ID
+        $user2 = User::find(3); // Encuentra otro usuario por su ID
         $user2->assignRole($bibliotecario);
     }
 }

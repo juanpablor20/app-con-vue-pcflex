@@ -25,6 +25,12 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'last_name' => $this->faker->lastName(), // Agrega el campo 'last_name'
+            'type_identification' => 'cc',
+            'number_identification' => $this->faker->randomNumber(9),
+            'sexo' => $this->faker->randomElement(['masculino', 'femenino']),
+            'telefono' => $this->faker->phoneNumber(),
+            'direccion' => $this->faker->address(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
