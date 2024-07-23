@@ -13,6 +13,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import WarningButton from '@/Components/WarningButton.vue';
 import GreenButton from '@/Components/GreenButton.vue';
 import { useForm } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
 
 const showModalvue = ref(false);
 const showModalForm = ref(false);
@@ -21,8 +22,9 @@ const showModalDel = ref(false);
 const form = useForm({
     names_pro: '',
     code_pro: '',
-    version: ''
+    version: '',
 });
+
 const v = ref({ id: '', names_pro: '', code_pro: '', version: '' });
 
 const title = ref('');
@@ -39,10 +41,11 @@ const openModalForm = (op, program) => {
     showModalForm.value = true;
     operation.value = op;
     if (op === 1) {
-        title.value = 'Crear Programa';
+        title.value = 'Crear Ficha';
         form.reset();
     } else {
-        title.value = 'Editar Programa';
+        title.value = 'Editar Ficha';
+        v.value = { ...program };
         form.names_pro = program.names_pro;
         form.code_pro = program.code_pro;
         form.version = program.version;
@@ -71,42 +74,81 @@ const props = defineProps({
     programs: {
         type: Object,
         required: true
-    }
+    },
+    programs: Array
 });
+
+const showAlert = (icon, title, text, callback) => {
+    Swal.fire({
+        icon,
+        title,
+        text,
+        position: 'top-end',
+        toast: true,
+        showConfirmButton: false,
+        timer: 8000,
+        timerProgressBar: true,
+        customClass: {
+            container: 'swal2-container-right',
+            popup: 'swal2-popup-small'
+        }
+    }).then(callback);
+};
 
 const save = () => {
     if (operation.value === 1) {
         form.post(route('programs.store'), {
-            onSuccess: () => { ok('Programa Creado con éxito') }
+            onSuccess: () => {
+                showAlert('success', 'Éxito', 'Programa Creado con éxito', () => {
+                    closeModalForm();
+                    closeModaldel();
+                    form.reset();
+                });
+            },
+            onError: () => {
+                showAlert('error', 'Error', 'Hubo un error al crear la ficha');
+            }
         });
     } else {
         form.put(route('programs.update', v.value.id), {
-            onSuccess: () => { ok('Programa Editado con éxito') }
+            onSuccess: () => {
+                showAlert('success', 'Éxito', 'Ficha Editada con éxito', () => {
+                    closeModalForm();
+                    closeModaldel();
+                });
+            },
+            onError: () => {
+                showAlert('error', 'Error', 'Hubo un error al editar la ficha');
+            }
         });
     }
 };
 
-const ok = (m) => {
-    closeModalForm();
-    closeModaldel();
-    form.reset();
-    msj.value = m;
-    classMsj.value = 'programa'; 
-    setTimeout(() => {
-        classMsj.value = 'hidden';
-    }, 8000);
-};
-
 const deleteprogram = () => {
     form.delete(route('programs.destroy', v.value.id), {
-        onSuccess: () => { ok('Programa inactivado con éxito') }
+        onSuccess: () => {
+            showAlert('success', 'Éxito', 'Programa inactivado con éxito', () => {
+                closeModaldel();
+                form.reset();
+            });
+        },
+        onError: () => {
+            showAlert('error', 'Error', 'Hubo un error al inactivar el programa');
+            form.reset();
+        }
     });
 };
 
 const activateProgram = (program) => {
-
     form.put(route('programs.activate', program.id), {
-        onSuccess: () => { ok('Programa activado con éxito') }
+        onSuccess: () => {
+            showAlert('success', 'Éxito', 'Programa activado con éxito', () => {
+                form.reset();
+            });
+        },
+        onError: () => {
+            showAlert('error', 'Error', 'Hubo un error al reactivar el programa');
+        }
     });
 };
 
@@ -116,8 +158,7 @@ const activateProgram = (program) => {
     <Head title="Programas" />
     <AuthenticatedLayout>
         <template #header>
-            
-            Programas
+            Ficha 
             <GreenButton @click="openModalForm(1)">Crear</GreenButton>
         </template>
 
@@ -141,12 +182,11 @@ const activateProgram = (program) => {
                     <table class="w-full whitespace-no-wrap">
                         <thead>
                             <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b">
-                                <th class="px-4 py-3">Nombre del Programa</th>
-                                <th class="px-4 py-3">Código del Programa</th>
+                                <th class="px-4 py-3">Nombre del programa</th>
+                                <th class="px-4 py-3">Código</th>
                                 <th class="px-4 py-3">Versión</th>
                                 <th class="px-4 py-3">Estado</th>
                                 <th class="px-4 py-3">Acciones</th>
-                                
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y">
@@ -160,19 +200,19 @@ const activateProgram = (program) => {
                                 <td class="px-4 py-3 text-sm">
                                     {{ program.version }}
                                 </td>
-                                <th class="px-4 py-3 text-sm">
+                                <td class="px-4 py-3 text-sm">
                                     <span :class="{'text-red-500': program.status === 'inactivo', 'text-green-500': program.status === 'activo'}">
                                         {{ program.status }}
                                     </span>
-                                </th>
-                                <td class="px-4 py-3 text-sm" v-if="program.status === 'activo'">
-                                    <WarningButton @click="openModalForm(2, program)">Editar</WarningButton>
                                 </td>
-                                <td class="px-4 py-3 text-sm" v-if="program.status === 'activo'">
-                                    <DangerButton @click="openModalDel(program)">Inactivar</DangerButton>
-                                </td>
-                                <td class="px-4 py-3 text-sm" v-if="program.status === 'inactivo'">
-                                    <GreenButton @click="activateProgram(program)">Reactivar</GreenButton>
+                                <td class="px-4 py-3 text-sm">
+                                    <template v-if="program.status === 'activo'">
+                                        <WarningButton @click="openModalForm(2, program)">Editar</WarningButton>
+                                        <DangerButton @click="openModalDel(program)">Inactivar</DangerButton>
+                                    </template>
+                                    <template v-else>
+                                        <GreenButton @click="activateProgram(program)">Reactivar</GreenButton>
+                                    </template>
                                 </td>
                             </tr>
                         </tbody>
@@ -184,18 +224,6 @@ const activateProgram = (program) => {
             </div>
         </div>
 
-        <!-- Modal para ver -->
-        <Modal :show="showModalvue" @close="closeModalvue">
-            <div class="p-6">
-                <p>Nombre del programa: <span class="text-lg font-medium text-gray-900">{{ v.names_pro }}</span></p>
-                <p>Código del programa: <span class="text-lg font-medium text-gray-900">{{ v.code_pro }}</span></p>
-                <p>Versión: <span class="text-lg font-medium text-gray-900">{{ v.version }}</span></p>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalvue">Cancelar</SecondaryButton>
-            </div>
-        </Modal>
-
         <!-- Modal para el formulario -->
         <Modal :show="showModalForm" @close="closeModalForm">
             <div class="p-6">
@@ -203,17 +231,16 @@ const activateProgram = (program) => {
                 <InputLabel for="names_pro" value="Nombre del Programa" />
                 <TextInput v-model="form.names_pro" required />
                 <InputError class="mt-1" :message="form.errors.names_pro" />
-            </div>
-            <div class="p-6">
+
                 <InputLabel for="code_pro" value="Código del Programa" />
                 <TextInput v-model="form.code_pro" required />
                 <InputError class="mt-1" :message="form.errors.code_pro" />
-            </div>
-            <div class="p-6">
+
                 <InputLabel for="version" value="Versión" />
                 <TextInput v-model="form.version" required />
                 <InputError class="mt-1" :message="form.errors.version" />
             </div>
+
             <div class="mt-6 flex justify-end">
                 <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
                 <PrimaryButton @click="save">Guardar</PrimaryButton>
@@ -224,7 +251,7 @@ const activateProgram = (program) => {
         <Modal :show="showModalDel" @close="closeModaldel">
             <div class="p-6">
                 <h1>¿Estás seguro de realizar esta acción?</h1>
-                <!-- Contenido de confirmación de eliminación -->
+                Tenga en cuenta que esta información no se eliminará, solo se cambia el estado a Inactivo.
             </div>
             <div class="mt-6 flex justify-end">
                 <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
@@ -233,3 +260,15 @@ const activateProgram = (program) => {
         </Modal>
     </AuthenticatedLayout>
 </template>
+
+<style>
+/* Personalizar el tamaño y posición de las alertas */
+.swal2-popup-small {
+    width: 300px !important; /* Ajusta el tamaño aquí */
+}
+
+.swal2-container-right {
+    right: 10px !important; /* Ajusta la posición aquí */
+    top: 10px !important;
+}
+</style>

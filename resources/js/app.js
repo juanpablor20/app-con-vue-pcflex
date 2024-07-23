@@ -22,8 +22,6 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
-            .component('SearchProgram', SearchProgram)
-      .component('SearchResults', SearchResults)
             .mount(el);
     },
     progress: {

@@ -9,6 +9,8 @@ use Inertia\Inertia;
 
 class EquipmentController extends Controller
 {
+
+    
     
     public function index()
     {

@@ -20,7 +20,7 @@
             <template #icon>
               <i class="fas fa-users w-5 h-5"></i>
             </template>
-            Users
+            Bibliotecarios
           </NavLink>
         </li>
 

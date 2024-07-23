@@ -3,7 +3,7 @@
 	  <template #header>
 		<div class="page-pretitle">Panel Principal</div>
 		<h2 class="page-title">PcFlex</h2>
-		<div class="flex items-center space-x-4 ml-auto">
+		<div  class="flex items-center space-x-4 ml-auto">
 		  <GreenButton @click="openModalForm(1)">Registrar Prestamo</GreenButton>
 		  <DangerButton @click="openModalForm(2)">Registrar Devolucion</DangerButton>
 
@@ -134,7 +134,8 @@
         type: Object,
         required: true
     },
-    environments: Array
+    environments: Array,
+	
   });
   
   const title = ref('');
