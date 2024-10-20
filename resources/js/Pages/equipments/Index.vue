@@ -4,6 +4,7 @@ import Pagination from "@/Components/Pagination.vue";
 import { Head } from "@inertiajs/vue3";
 import { ref } from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
+import CreateButton from "@/Components/CreateButton.vue";
 import InputError from "@/Components/InputError.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
@@ -14,7 +15,7 @@ import WarningButton from "@/Components/WarningButton.vue";
 import GreenButton from "@/Components/GreenButton.vue";
 import { useForm } from "@inertiajs/vue3";
 import ShowButton from "@/Components/ShowButton.vue";
-
+import NavLink from "@/Components/NavLink.vue";
 const showModalvue = ref(false);
 const showModalForm = ref(false);
 const showModalDel = ref(false);
@@ -102,6 +103,7 @@ const save = () => {
     }
 };
 
+
 const ok = (message) => {
     closeModalForm();
     closeModaldel();
@@ -137,6 +139,11 @@ const activateProgram = (equipments) => {
         },
     });
 };
+
+  const  downloadPdf = () => {
+      window.location.href = route('pdfequipos');
+    };
+  
 </script>
 
 <template>
@@ -144,6 +151,12 @@ const activateProgram = (equipments) => {
     <AuthenticatedLayout>
         <template #header>
             Equipos
+            <button @click="downloadPdf">
+                <GreenButton>
+                  <i class="fas fa-plus mr-1"></i>
+                  PDF
+                </GreenButton>
+              </button>
             <GreenButton @click="openModalForm(1)">Crear</GreenButton>
         </template>
 
@@ -252,5 +265,9 @@ const activateProgram = (equipments) => {
                 <DangerButton @click="reparationEquipment(v)">Sí, seguro</DangerButton>
             </div>
         </Modal>
+        
     </AuthenticatedLayout>
 </template>
+
+
+ 

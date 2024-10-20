@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\equipment;
 use App\Models\Equipment as ModelsEquipment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class EquipmentController extends Controller
@@ -82,4 +84,30 @@ class EquipmentController extends Controller
         $equipments->save();
         return redirect('equipments');
     }
+
+
+    public function pdfequipos()
+{
+   
+    $data = [
+        'title' => 'Reporte de Equipos',
+        'equipments' => Equipment::all(), 
+    ];
+   // $equipments = Equipment::all();
+
+   // dd($data);
+    // Generar el PDF con la vista 'report.blade.php'
+    $pdf = Pdf::loadView('report', $data);
+    return $pdf->download('reporte_equipos.pdf');
+
+    // Guarda el PDF temporalmente en el sistema de archivos (carpeta 'public/pdfs')
+    $pdfPath = 'pdfs/reporte_equipos_' . time() . '.pdf';
+    Storage::disk('public')->put($pdfPath, $pdf->output());
+
+    // Genera la URL pública del archivo
+    $pdfUrl = Storage::url($pdfPath);
+
+    $pdf = Pdf::loadView('pdf.invoice', $data);
+    return redirect()->away($pdfUrl);
+}
 }

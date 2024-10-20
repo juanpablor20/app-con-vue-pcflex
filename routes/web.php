@@ -93,7 +93,9 @@ Route::put('/environments/activate/{id}', [EnvironmentController::class, 'active
     Route::get('/search_program', [SearchController::class, 'search'])->name('search_program');
 
 
+//rutas pdf
 
+    Route::get('/pdfequipos', [EquipmentController::class, 'pdfequipos'])->name('pdfequipos');
 
     //ruta prestamos
 
