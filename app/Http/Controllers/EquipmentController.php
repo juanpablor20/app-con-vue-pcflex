@@ -14,14 +14,27 @@ class EquipmentController extends Controller
 
     
     
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('equipments/Index', [
-            'equipments' => equipment::paginate()
+        $search = $request->input('search');
+        
+        $query = Equipment::query();
+    
+        if ($search) {
+            $query->where('serie_equi', 'like', '%' . $search . '%');
+        }
+    
+        // Aquí puedes agregar el paginador como siempre
+        $equipments = $query->paginate(10);
+    
+        return inertia('equipments/Index', [
+            'equipments' => $equipments,
+            'search' => $search,
         ]);
-
-     
     }
+    
+    
+    
 
     public function create()
     {
@@ -93,21 +106,9 @@ class EquipmentController extends Controller
         'title' => 'Reporte de Equipos',
         'equipments' => Equipment::all(), 
     ];
-   // $equipments = Equipment::all();
 
-   // dd($data);
-    // Generar el PDF con la vista 'report.blade.php'
     $pdf = Pdf::loadView('report', $data);
     return $pdf->download('reporte_equipos.pdf');
 
-    // Guarda el PDF temporalmente en el sistema de archivos (carpeta 'public/pdfs')
-    $pdfPath = 'pdfs/reporte_equipos_' . time() . '.pdf';
-    Storage::disk('public')->put($pdfPath, $pdf->output());
-
-    // Genera la URL pública del archivo
-    $pdfUrl = Storage::url($pdfPath);
-
-    $pdf = Pdf::loadView('pdf.invoice', $data);
-    return redirect()->away($pdfUrl);
 }
 }

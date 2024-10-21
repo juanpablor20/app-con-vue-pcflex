@@ -2,42 +2,57 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
 import { Head } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref, computed } from "vue"; // Importar 'computed' de Vue
 import DangerButton from "@/Components/DangerButton.vue";
-import CreateButton from "@/Components/CreateButton.vue";
+import DeleteButton from "@/Components/DeleteButton.vue";
 import InputError from "@/Components/InputError.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import Modal from "@/Components/Modal.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import WarningButton from "@/Components/WarningButton.vue";
 import GreenButton from "@/Components/GreenButton.vue";
+import EditButton from "@/Components/EditButton.vue";
+import CreateButton from "@/Components/CreateButton.vue";
 import { useForm } from "@inertiajs/vue3";
 import ShowButton from "@/Components/ShowButton.vue";
-import NavLink from "@/Components/NavLink.vue";
+
 const showModalvue = ref(false);
 const showModalForm = ref(false);
 const showModalDel = ref(false);
 const showModalrepa = ref(false);
 
+// Configuración del formulario
 const form = useForm({
     type_equi: "",
     characteristics: "",
     serie_equi: "",
 });
 
+// Información de equipo seleccionada
 const v = ref({ id: "", type_equi: "", characteristics: "", serie_equi: "" });
 const title = ref("");
 const operation = ref(1);
 const msj = ref("");
 const classMsj = ref("hidden");
+const searchTerm = ref("");
 
-const openModalvue = (equipment) => {
-    showModalvue.value = true;
-    v.value = { ...equipment };
-};
+// Propiedades pasadas desde el componente padre
+const props = defineProps({
+    equipments: {
+        type: Object,
+        required: true,
+    },
+});
 
+// Filtrar equipos en base al término de búsqueda
+const filteredEquipments = computed(() => {
+    return props.equipments.data.filter(equipment => 
+        equipment.serie_equi.includes(searchTerm.value)
+    );
+});
+
+// Métodos para abrir y cerrar modales
 const openModalForm = (op, equipment) => {
     showModalForm.value = true;
     operation.value = op;
@@ -53,97 +68,55 @@ const openModalForm = (op, equipment) => {
     }
 };
 
-const openModalDel = (equipment) => {
-    showModalDel.value = true;
-    v.value = { ...equipment };
-};
-
-const openModalrepa = (equipment) => {
-    showModalrepa.value = true;
-    v.value = { ...equipment };
-};
-
-const closeModalvue = () => {
-    showModalvue.value = false;
-};
-
 const closeModalForm = () => {
     showModalForm.value = false;
     form.reset();
 };
 
-const closeModaldel = () => {
-    showModalDel.value = false;
-};
-
-const closeModalrepa = () => {
-    showModalrepa.value = false;
-};
-
-const props = defineProps({
-    equipments: {
-        type: Object,
-        required: true,
-    },
-});
-
+// Guardar equipo (crear o editar)
 const save = () => {
-    if (operation.value === 1) {
-        form.post(route("equipments.store"), {
-            onSuccess: () => {
-                ok("Equipo creado con éxito");
-            },
-        });
-    } else {
-        form.put(route("equipments.update", v.value.id), {
-            onSuccess: () => {
-                ok("Equipo editado con éxito");
-            },
-        });
-    }
+    const action = operation.value === 1 ? form.post : form.put;
+    action(route("equipments.store"), {
+        data: operation.value === 1 ? form : { ...form, id: v.value.id },
+        onSuccess: () => ok(`${operation.value === 1 ? 'Equipo creado' : 'Equipo editado'} con éxito`),
+    });
 };
 
-
+// Mostrar mensaje de éxito
 const ok = (message) => {
     closeModalForm();
-    closeModaldel();
-    closeModalrepa();
-    form.reset();
     msj.value = message;
-    classMsj.value = "Equipo";
+    classMsj.value = "";
     setTimeout(() => {
         classMsj.value = "hidden";
     }, 8000);
 };
 
+// Eliminar equipo
 const deleteprogram = () => {
     form.delete(route("equipments.destroy", v.value.id), {
-        onSuccess: () => {
-            ok("Equipo inactivado con éxito");
-        },
+        onSuccess: () => ok("Equipo inactivado con éxito"),
     });
 };
 
+// Enviar a reparación
 const reparationEquipment = (equipments) => {
     form.put(route("equipments.reparation", equipments.id), {
-        onSuccess: () => {
-            ok("Equipo enviado a reparación");
-        },
+        onSuccess: () => ok("Equipo enviado a reparación"),
     });
 };
 
+// Activar equipo
 const activateProgram = (equipments) => {
     form.put(route("equipments.activate", equipments.id), {
-        onSuccess: () => {
-            ok("Equipo activado con éxito");
-        },
+        onSuccess: () => ok("Equipo activado con éxito"),
     });
 };
 
-  const  downloadPdf = () => {
-      window.location.href = route('pdfequipos');
-    };
-  
+// Descargar PDF
+const downloadPdf = () => {
+    window.location.href = route('pdfequipos');
+};
 </script>
 
 <template>
@@ -151,13 +124,21 @@ const activateProgram = (equipments) => {
     <AuthenticatedLayout>
         <template #header>
             Equipos
-            <button @click="downloadPdf">
-                <GreenButton>
-                  <i class="fas fa-plus mr-1"></i>
-                  PDF
-                </GreenButton>
-              </button>
-            <GreenButton @click="openModalForm(1)">Crear</GreenButton>
+            <div class="flex justify-between items-center">
+                <button @click="downloadPdf" class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                    <i class="fa fa-file" aria-hidden="true"></i>
+                    PDF
+                </button>
+                <CreateButton @click="openModalForm(1)">
+                    <i class="fas fa-plus mr-1"></i>
+                    Crear
+                </CreateButton>
+                <TextInput
+                    v-model="searchTerm"
+                    placeholder="Buscar por número de Serie"
+                    class="border border-gray-300 rounded-md px-4 py-2"
+                />
+            </div>
         </template>
 
         <div class="p-4 bg-white rounded-lg shadow-xs">
@@ -188,7 +169,7 @@ const activateProgram = (equipments) => {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y">
-                            <tr v-for="equipment in equipments.data" :key="equipment.id" class="text-gray-700">
+                            <tr v-for="equipment in filteredEquipments" :key="equipment.id" class="text-gray-700">
                                 <td class="px-4 py-3 text-sm">{{ equipment.type_equi }}</td>
                                 <td class="px-4 py-3 text-sm">{{ equipment.characteristics }}</td>
                                 <td class="px-4 py-3 text-sm">{{ equipment.serie_equi }}</td>
@@ -200,74 +181,35 @@ const activateProgram = (equipments) => {
                                     }">{{ equipment.status }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-sm">
-                                    <template v-if="equipment.status === 'disponible'">
-                                        <WarningButton @click="openModalForm(2, equipment)">Editar</WarningButton>
-                                        <DangerButton @click="openModalDel(equipment)">Inactivar</DangerButton>
-                                        <ShowButton @click="openModalrepa(equipment)">Reparación</ShowButton>
-                                    </template>
-                                    <template v-else>
-                                        <GreenButton @click="activateProgram(equipment)">Reactivar</GreenButton>
-                                    </template>
+                                    <div class="flex space-x-2">
+                                        <template v-if="equipment.status === 'disponible'">
+                                            <EditButton @click="openModalForm(2, equipment)">Editar</EditButton>
+                                            <ShowButton @click="openModalrepa(equipment)">Reparación</ShowButton>
+                                            <DeleteButton @click="openModalDel(equipment)">Inactivar</DeleteButton>
+                                        </template>
+                                        <template v-else>
+                                            <GreenButton @click="activateProgram(equipment)">Reactivar</GreenButton>
+                                        </template>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase bg-gray-50 border-t sm:grid-cols-9">
-                    <Pagination :links="equipments.links" />
+                <div class="flex items-center justify-between p-4">
+                    <Pagination :links="props.equipments.links" />
                 </div>
             </div>
         </div>
-
-        <!-- Modal para el formulario -->
-        <Modal :show="showModalForm" @close="closeModalForm">
+        <Modal :show="showModalDel" @close="closeModalDel">
             <div class="p-6">
-                <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
-                <InputLabel for="type_equi" value="Tipo de Equipo" />
-                <TextInput v-model="form.type_equi" required />
-                <InputError class="mt-1" :message="form.errors.type_equi" />
-                
-                <InputLabel for="characteristics" value="Características" />
-                <TextInput v-model="form.characteristics" required />
-                <InputError class="mt-1" :message="form.errors.characteristics" />
-                
-                <InputLabel for="serie_equi" value="Número de Serie" />
-                <TextInput v-model="form.serie_equi" required />
-                <InputError class="mt-1" :message="form.errors.serie_equi" />
+                <h1 class="text-lg font-semibold">¿Estás seguro de realizar esta acción?</h1>
+                <p>Esta acción no se puede deshacer.</p>
             </div>
-
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-                <PrimaryButton @click="save">Guardar</PrimaryButton>
+            <div class="mt-6 flex justify-end space-x-4">
+                <SecondaryButton @click="closeModalDel">Cancelar</SecondaryButton>
+                <DangerButton @click="deleteUser">Sí, seguro</DangerButton>
             </div>
         </Modal>
-
-        <!-- Modal para eliminación -->
-        <Modal :show="showModalDel" @close="closeModaldel">
-            <div class="p-6">
-                <h1>¿Estás seguro de realizar esta acción?</h1>
-                <p>Tenga en cuenta que esta información no se eliminará, solo se cambia el estado a inactivo.</p>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
-                <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
-            </div>
-        </Modal>
-
-        <!-- Modal para reparación -->
-        <Modal :show="showModalrepa" @close="closeModalrepa">
-            <div class="p-6">
-                <h1>¿Estás seguro de enviar a reparación?</h1>
-                <p>Tenga en cuenta que este equipo no se prestará nuevamente, y su estado se cambia manualmente.</p>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalrepa">Cancelar</SecondaryButton>
-                <DangerButton @click="reparationEquipment(v)">Sí, seguro</DangerButton>
-            </div>
-        </Modal>
-        
     </AuthenticatedLayout>
 </template>
-
-
- 
