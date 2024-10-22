@@ -10,10 +10,11 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import WarningButton from '@/Components/WarningButton.vue';
 import GreenButton from '@/Components/GreenButton.vue';
 import { useForm } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import EditButton from '@/Components/EditButton.vue';
+import CreateButton from '@/Components/CreateButton.vue';
 
 const showModalvue = ref(false);
 const showModalForm = ref(false);
@@ -78,47 +79,42 @@ const props = defineProps({
     programs: Array
 });
 
-const showAlert = (icon, title, text, callback) => {
-    Swal.fire({
-        icon,
-        title,
-        text,
-        position: 'top-end',
-        toast: true,
-        showConfirmButton: false,
-        timer: 8000,
-        timerProgressBar: true,
-        customClass: {
-            container: 'swal2-container-right',
-            popup: 'swal2-popup-small'
-        }
-    }).then(callback);
-};
+const showSuccessAlert = (message) => {
+    closeModalForm();
+	Swal.fire({
+	  position: 'top-end',
+	  icon: 'success',
+	  title: message,
+	  showConfirmButton: false,
+	  timer: 8000,
+	  toast: true,
+	});
+  };
+  const showErrorAlert = (message) => {
+	Swal.fire({
+	  icon: 'error',
+	  title: 'Oops...',
+	  text: message,
+	});
+  };
 
 const save = () => {
     if (operation.value === 1) {
         form.post(route('programs.store'), {
             onSuccess: () => {
-                showAlert('success', 'Éxito', 'Programa Creado con éxito', () => {
-                    closeModalForm();
-                    closeModaldel();
-                    form.reset();
-                });
+                showSuccessAlert("Programa creado con éxito");
             },
-            onError: () => {
-                showAlert('error', 'Error', 'Hubo un error al crear la ficha');
-            }
+            onError: (errors) => {
+        showErrorAlert(errors.error);
+        }
         });
     } else {
         form.put(route('programs.update', v.value.id), {
             onSuccess: () => {
-                showAlert('success', 'Éxito', 'Ficha Editada con éxito', () => {
-                    closeModalForm();
-                    closeModaldel();
-                });
+                showSuccessAlert("Programa Editado con éxito");
             },
-            onError: () => {
-                showAlert('error', 'Error', 'Hubo un error al editar la ficha');
+            onError: (errors) => {
+        showErrorAlert(errors.error);
             }
         });
     }
@@ -127,28 +123,22 @@ const save = () => {
 const deleteprogram = () => {
     form.delete(route('programs.destroy', v.value.id), {
         onSuccess: () => {
-            showAlert('success', 'Éxito', 'Programa inactivado con éxito', () => {
-                closeModaldel();
-                form.reset();
-            });
+            showSuccessAlert("Programa Editado con éxito");
         },
-        onError: () => {
-            showAlert('error', 'Error', 'Hubo un error al inactivar el programa');
-            form.reset();
-        }
+        onError: (errors) => {
+        showErrorAlert(errors.error);
+            }
     });
 };
 
 const activateProgram = (program) => {
     form.put(route('programs.activate', program.id), {
         onSuccess: () => {
-            showAlert('success', 'Éxito', 'Programa activado con éxito', () => {
-                form.reset();
-            });
+            showSuccessAlert("Programa Activado con éxito");
         },
-        onError: () => {
-            showAlert('error', 'Error', 'Hubo un error al reactivar el programa');
-        }
+        onError: (errors) => {
+        showErrorAlert(errors.error);
+            }
     });
 };
 
@@ -158,8 +148,17 @@ const activateProgram = (program) => {
     <Head title="Programas" />
     <AuthenticatedLayout>
         <template #header>
-            Ficha 
-            <GreenButton @click="openModalForm(1)">Crear</GreenButton>
+            Programas 
+            <div class="flex justify-between items-center">
+                <div class="flex gap-x-4">
+                
+                 <CreateButton @click="openModalForm(1)">
+                     <i class="fas fa-plus mr-1"></i>
+                     Crear
+                 </CreateButton>
+                </div>
+ 
+             </div>
         </template>
 
         <div class="p-4 bg-white rounded-lg shadow-xs">
@@ -205,9 +204,9 @@ const activateProgram = (program) => {
                                         {{ program.status }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-sm">
+                                <td class="flex  gap-x-2">
                                     <template v-if="program.status === 'activo'">
-                                        <WarningButton @click="openModalForm(2, program)">Editar</WarningButton>
+                                        <EditButton @click="openModalForm(2, program)">Editar</EditButton>
                                         <DangerButton @click="openModalDel(program)">Inactivar</DangerButton>
                                     </template>
                                     <template v-else>
@@ -226,7 +225,7 @@ const activateProgram = (program) => {
 
         <!-- Modal para el formulario -->
         <Modal :show="showModalForm" @close="closeModalForm">
-            <div class="p-6">
+            <div class="p-6 space-y-4">
                 <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
                 <InputLabel for="names_pro" value="Nombre del Programa" />
                 <TextInput v-model="form.names_pro" required />
@@ -239,12 +238,13 @@ const activateProgram = (program) => {
                 <InputLabel for="version" value="Versión" />
                 <TextInput v-model="form.version" required />
                 <InputError class="mt-1" :message="form.errors.version" />
+                <div class="flex justify-end gap-x-2">
+                    <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
+                    <CreateButton @click="save">Guardar</CreateButton>
+                </div>
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-                <PrimaryButton @click="save">Guardar</PrimaryButton>
-            </div>
+            
         </Modal>
 
         <!-- Modal para eliminación -->

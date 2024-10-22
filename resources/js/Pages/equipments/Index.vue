@@ -10,7 +10,6 @@ import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import Modal from "@/Components/Modal.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
 import GreenButton from "@/Components/GreenButton.vue";
 import EditButton from "@/Components/EditButton.vue";
 import CreateButton from "@/Components/CreateButton.vue";
@@ -21,12 +20,14 @@ const showModalvue = ref(false);
 const showModalForm = ref(false);
 const showModalDel = ref(false);
 const showModalrepa = ref(false);
+const showModalReactive = ref(false);
 
 // Configuración del formulario
 const form = useForm({
     type_equi: "",
     characteristics: "",
     serie_equi: "",
+    errors: {}
 });
 
 // Información de equipo seleccionada
@@ -80,13 +81,15 @@ const openModalrepa = (equipment) => {
     showModalrepa.value = true;
     v.value = { ...equipment };
 };
-
-const closeModalvue = () => {
-    showModalvue.value = false;
+const openModalReactive = (equipment) => {
+    showModalReactive.value = true;
+    v.value = { ...equipment };
 };
+
 
 const closeModalForm = () => {
     showModalForm.value = false;
+    errors: {}
     form.reset();
 };
 const closeModaldel = () => {
@@ -96,6 +99,9 @@ const closeModaldel = () => {
 const closeModalrepa = () => {
     showModalrepa.value = false;
 };
+const closeModalReactive = () => {
+    showModalReactive.value = false;
+};
 
 
 // Guardar equipo (crear o editar)
@@ -103,36 +109,55 @@ const save = () => {
     if (operation.value === 1) {
         form.post(route("equipments.store"), {
             onSuccess: () => {
-                ok("Equipo creado con éxito");
+                showSuccessAlert("Equipo creado con éxito");
             },
         });
     } else {
         form.put(route("equipments.update", v.value.id), {
             onSuccess: () => {
-                ok("Equipo editado con éxito");
+                showSuccessAlert("Equipo editado con éxito");
             },
+            onError: (errors) => {
+
+                closeModalForm();
+
+showErrorAlert(errors.error);
+}
         });
     }
 };
 
 // Mostrar mensaje de éxito
-const ok = (message) => {
-    closeModalForm();
-    msj.value = message;
-    classMsj.value = "";
-    setTimeout(() => {
-        classMsj.value = "hidden";
-    }, 8000);
-};
 
+
+const showSuccessAlert = (message) => {
+    closeModalForm();
+	Swal.fire({
+	  position: 'top-end',
+	  icon: 'success',
+	  title: message,
+	  showConfirmButton: false,
+	  timer: 8000,
+	  toast: true,
+	});
+  };
+  
 // Eliminar equipo
 // Eliminar equipo
 const deleteprogram = () => {
     form.delete(route("equipments.destroy", v.value.id), {
         onSuccess: () => {
             closeModaldel(); // Cerrar el modal de eliminación
-            ok("Equipo inactivado con éxito"); // Mostrar el mensaje de éxito
+            showSuccessAlert("Equipo inactivado con éxito"); // Mostrar el mensaje de éxito
         },
+        onError: (errors) => {
+
+
+            closeModaldel(); // Cerrar el modal de eliminación
+        
+        showErrorAlert(errors.error);
+        }
+        
     });
 };
 
@@ -141,16 +166,29 @@ const reparationEquipment = (equipments) => {
     form.put(route("equipments.reparation", equipments.id), {
         onSuccess: () => {
             closeModalrepa(); // Cerrar el modal de reparación
-            ok("Equipo enviado a reparación"); // Mostrar el mensaje de éxito
+            showSuccessAlert("Equipo enviado a reparación"); // Mostrar el mensaje de éxito
         },
+        onError: (errors) => {
+            closeModalrepa(); 
+        showErrorAlert(errors.error);
+        }
     });
 };
 
 
+const showErrorAlert = (message) => {
+	Swal.fire({
+	  icon: 'error',
+	  title: 'Oops...',
+	  text: message,
+	});
+  };
+
 const activateProgram = (equipments) => {
     form.put(route("equipments.activate", equipments.id), {
         onSuccess: () => {
-            ok("Equipo activado con éxito");
+            closeModalReactive(); 
+            showSuccessAlert("Equipo activado con éxito");
         },
     });
 };
@@ -159,7 +197,6 @@ const activateProgram = (equipments) => {
 const downloadPdf = () => {
     window.location.href = route('pdfequipos');
 };
-
 </script>
 
 <template>
@@ -168,6 +205,7 @@ const downloadPdf = () => {
         <template #header>
             Equipos
             <div class="flex justify-between items-center">
+               <div class="flex gap-x-4">
                 <button @click="downloadPdf" class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                     <i class="fa fa-file" aria-hidden="true"></i>
                     PDF
@@ -176,6 +214,7 @@ const downloadPdf = () => {
                     <i class="fas fa-plus mr-1"></i>
                     Crear
                 </CreateButton>
+               </div>
                 <SearchForm v-model:search="searchTerm" />
 
 
@@ -183,20 +222,7 @@ const downloadPdf = () => {
         </template>
 
         <div class="p-4 bg-white rounded-lg shadow-xs">
-            <div class="inline-flex overflow-hidden mb-4 w-full bg-white rounded-lg shadow-md" :class="classMsj">
-                <div class="flex justify-center items-center w-12 bg-blue-500">
-                    <svg class="w-6 h-6 text-white fill-current" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM21.6667 28.3333H18.3334V25H21.6667V28.3333ZM21.6667 21.6666H18.3334V11.6666H21.6667V21.6666Z" />
-                    </svg>
-                </div>
-                <div class="px-4 py-2 -mx-3">
-                    <div class="mx-3">
-                        <span class="font-semibold text-blue-500">Success</span>
-                        <p class="text-sm text-gray-600">{{ msj }}</p>
-                    </div>
-                </div>
-            </div>
-
+           
             <div class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs">
                 <div class="overflow-x-auto w-full">
                     <table class="w-full whitespace-no-wrap">
@@ -217,19 +243,20 @@ const downloadPdf = () => {
                                 <td class="px-4 py-3 text-sm">
                                     <span :class="{
                                         'text-red-500': equipment.status === 'inactivo',
+                                        'text-red-700': equipment.status === 'prestado',
                                         'text-green-500': equipment.status === 'disponible',
                                         'text-purple-800': equipment.status === 'reparacion',
                                     }">{{ equipment.status }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-sm">
                                     <div class="flex space-x-2">
-                                        <template v-if="equipment.status === 'disponible'">
+                                        <template v-if="equipment.status === 'disponible' || equipment.status === 'prestado'">
                                             <EditButton @click="openModalForm(2, equipment)">Editar</EditButton>
                                             <ShowButton @click="openModalrepa(equipment)">Reparación</ShowButton>
                                             <DeleteButton @click="openModalDel(equipment)">Inactivar</DeleteButton>
                                         </template>
                                         <template v-else>
-                                            <GreenButton @click="activateProgram(equipment)">Reactivar</GreenButton>
+                                            <GreenButton @click="openModalReactive(equipment)">Reactivar</GreenButton>
                                         </template>
                                     </div>
                                 </td>
@@ -244,49 +271,82 @@ const downloadPdf = () => {
             </div>
         </div>
         <Modal :show="showModalForm" @close="closeModalForm">
-            <div class="p-6">
+            <div class="p-6 space-y-4">
                 <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
                 <InputLabel for="type_equi" value="Tipo de Equipo" />
-                <TextInput v-model="form.type_equi" required />
+                <TextInput v-model="form.type_equi" required placeholder="ejemplo: portatil" />
                 <InputError class="mt-1" :message="form.errors.type_equi" />
                 
                 <InputLabel for="characteristics" value="Características" />
-                <TextInput v-model="form.characteristics" required />
+                <TextInput v-model="form.characteristics" required  placeholder="ejemplo: lenovo gaming"/>
                 <InputError class="mt-1" :message="form.errors.characteristics" />
                 
                 <InputLabel for="serie_equi" value="Número de Serie" />
                 <TextInput v-model="form.serie_equi" required />
-                <InputError class="mt-1" :message="form.errors.serie_equi" />
+               <InputError class="mt-1" :message="form.errors.serie_equi" /> 
+                <!-- <InputError class="mt-1" :message="!isSerieEquiValid ? 'El número de serie debe contener al menos 3 dígitos.' : ''" /> -->
+                <div class="flex justify-end gap-x-2">
+                    <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
+    
+                    <CreateButton @click="save">Guardar</CreateButton>
+                </div>
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-                <PrimaryButton @click="save">Guardar</PrimaryButton>
-            </div>
+            
         </Modal>
 
         <!-- Modal para eliminación -->
         <Modal :show="showModalDel" @close="closeModaldel">
-            <div class="p-6">
+
+            <div class="p-6 space-y-4">
+
+            
+            <div class="p-6 space-y-4">
                 <h1>¿Estás seguro de realizar esta acción?</h1>
                 <p>Tenga en cuenta que esta información no se eliminará, solo se cambia el estado a inactivo.</p>
             </div>
-            <div class="mt-6 flex justify-end">
+            <div class="flex justify-end gap-x-2">
                 <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
                 <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
             </div>
+        </div>
         </Modal>
 
         <!-- Modal para reparación -->
         <Modal :show="showModalrepa" @close="closeModalrepa">
+            <div class="p-6 space-y-4">
+
             <div class="p-6">
                 <h1>¿Estás seguro de enviar a reparación?</h1>
                 <p>Tenga en cuenta que este equipo no se prestará nuevamente, y su estado se cambia manualmente.</p>
             </div>
-            <div class="mt-6 flex justify-end">
+            <div class="flex justify-end gap-x-2">
                 <SecondaryButton @click="closeModalrepa">Cancelar</SecondaryButton>
-                <DangerButton @click="reparationEquipment(v)">Sí, seguro</DangerButton>
+                <DangerButton @click="activateProgram(v)">Sí, seguro</DangerButton>
             </div>
+        </div>
+
         </Modal>
+
+
+
+
+
+        <Modal :show="showModalReactive" @close="closeModalReactive">
+            <div class="p-6 space-y-4">
+
+            <div class="p-6">
+                <h1>¿Estás seguro de  que el Equipo se ecuentra en biblioteca?</h1>
+                <p>Tenga en cuenta que al reactivar el equipo, El sistema asume que el equipo Esta en Biblioteca.</p>
+            </div>
+            <div class="flex justify-end gap-x-2">
+                <SecondaryButton @click="closeModalReactive">Cancelar</SecondaryButton>
+                <DangerButton @click="activateProgram(v)">Sí, Reactivar</DangerButton>
+            </div>
+        </div>
+
+        </Modal>
+
+
     </AuthenticatedLayout>
 </template>
