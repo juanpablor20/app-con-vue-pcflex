@@ -16,7 +16,7 @@ import EditButton from "@/Components/EditButton.vue";
 import CreateButton from "@/Components/CreateButton.vue";
 import { useForm } from "@inertiajs/vue3";
 import ShowButton from "@/Components/ShowButton.vue";
-
+import SearchForm from "@/Components/SearchForm.vue";
 const showModalvue = ref(false);
 const showModalForm = ref(false);
 const showModalDel = ref(false);
@@ -47,11 +47,15 @@ const props = defineProps({
 
 // Filtrar equipos en base al término de búsqueda
 const filteredEquipments = computed(() => {
+    if (!searchTerm.value) {
+        return props.equipments.data;
+    }
     return props.equipments.data.filter(equipment => 
-        equipment.serie_equi.includes(searchTerm.value)
+        equipment.serie_equi.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+        equipment.type_equi.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+        equipment.characteristics.toLowerCase().includes(searchTerm.value.toLowerCase())
     );
 });
-
 // Métodos para abrir y cerrar modales
 const openModalForm = (op, equipment) => {
     showModalForm.value = true;
@@ -67,19 +71,48 @@ const openModalForm = (op, equipment) => {
         form.serie_equi = equipment.serie_equi;
     }
 };
+const openModalDel = (equipment) => {
+    showModalDel.value = true;
+    v.value = { ...equipment };
+};
+
+const openModalrepa = (equipment) => {
+    showModalrepa.value = true;
+    v.value = { ...equipment };
+};
+
+const closeModalvue = () => {
+    showModalvue.value = false;
+};
 
 const closeModalForm = () => {
     showModalForm.value = false;
     form.reset();
 };
+const closeModaldel = () => {
+    showModalDel.value = false;
+};
+
+const closeModalrepa = () => {
+    showModalrepa.value = false;
+};
+
 
 // Guardar equipo (crear o editar)
 const save = () => {
-    const action = operation.value === 1 ? form.post : form.put;
-    action(route("equipments.store"), {
-        data: operation.value === 1 ? form : { ...form, id: v.value.id },
-        onSuccess: () => ok(`${operation.value === 1 ? 'Equipo creado' : 'Equipo editado'} con éxito`),
-    });
+    if (operation.value === 1) {
+        form.post(route("equipments.store"), {
+            onSuccess: () => {
+                ok("Equipo creado con éxito");
+            },
+        });
+    } else {
+        form.put(route("equipments.update", v.value.id), {
+            onSuccess: () => {
+                ok("Equipo editado con éxito");
+            },
+        });
+    }
 };
 
 // Mostrar mensaje de éxito
@@ -93,23 +126,32 @@ const ok = (message) => {
 };
 
 // Eliminar equipo
+// Eliminar equipo
 const deleteprogram = () => {
     form.delete(route("equipments.destroy", v.value.id), {
-        onSuccess: () => ok("Equipo inactivado con éxito"),
+        onSuccess: () => {
+            closeModaldel(); // Cerrar el modal de eliminación
+            ok("Equipo inactivado con éxito"); // Mostrar el mensaje de éxito
+        },
     });
 };
 
 // Enviar a reparación
 const reparationEquipment = (equipments) => {
     form.put(route("equipments.reparation", equipments.id), {
-        onSuccess: () => ok("Equipo enviado a reparación"),
+        onSuccess: () => {
+            closeModalrepa(); // Cerrar el modal de reparación
+            ok("Equipo enviado a reparación"); // Mostrar el mensaje de éxito
+        },
     });
 };
 
-// Activar equipo
+
 const activateProgram = (equipments) => {
     form.put(route("equipments.activate", equipments.id), {
-        onSuccess: () => ok("Equipo activado con éxito"),
+        onSuccess: () => {
+            ok("Equipo activado con éxito");
+        },
     });
 };
 
@@ -117,6 +159,7 @@ const activateProgram = (equipments) => {
 const downloadPdf = () => {
     window.location.href = route('pdfequipos');
 };
+
 </script>
 
 <template>
@@ -133,11 +176,9 @@ const downloadPdf = () => {
                     <i class="fas fa-plus mr-1"></i>
                     Crear
                 </CreateButton>
-                <TextInput
-                    v-model="searchTerm"
-                    placeholder="Buscar por número de Serie"
-                    class="border border-gray-300 rounded-md px-4 py-2"
-                />
+                <SearchForm v-model:search="searchTerm" />
+
+
             </div>
         </template>
 
@@ -197,18 +238,54 @@ const downloadPdf = () => {
                     </table>
                 </div>
                 <div class="flex items-center justify-between p-4">
-                    <Pagination :links="props.equipments.links" />
+                   <Pagination :links="props.equipments.links" :query="searchTerm.value" />
+
                 </div>
             </div>
         </div>
-        <Modal :show="showModalDel" @close="closeModalDel">
+        <Modal :show="showModalForm" @close="closeModalForm">
             <div class="p-6">
-                <h1 class="text-lg font-semibold">¿Estás seguro de realizar esta acción?</h1>
-                <p>Esta acción no se puede deshacer.</p>
+                <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
+                <InputLabel for="type_equi" value="Tipo de Equipo" />
+                <TextInput v-model="form.type_equi" required />
+                <InputError class="mt-1" :message="form.errors.type_equi" />
+                
+                <InputLabel for="characteristics" value="Características" />
+                <TextInput v-model="form.characteristics" required />
+                <InputError class="mt-1" :message="form.errors.characteristics" />
+                
+                <InputLabel for="serie_equi" value="Número de Serie" />
+                <TextInput v-model="form.serie_equi" required />
+                <InputError class="mt-1" :message="form.errors.serie_equi" />
             </div>
-            <div class="mt-6 flex justify-end space-x-4">
-                <SecondaryButton @click="closeModalDel">Cancelar</SecondaryButton>
-                <DangerButton @click="deleteUser">Sí, seguro</DangerButton>
+
+            <div class="mt-6 flex justify-end">
+                <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
+                <PrimaryButton @click="save">Guardar</PrimaryButton>
+            </div>
+        </Modal>
+
+        <!-- Modal para eliminación -->
+        <Modal :show="showModalDel" @close="closeModaldel">
+            <div class="p-6">
+                <h1>¿Estás seguro de realizar esta acción?</h1>
+                <p>Tenga en cuenta que esta información no se eliminará, solo se cambia el estado a inactivo.</p>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
+                <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
+            </div>
+        </Modal>
+
+        <!-- Modal para reparación -->
+        <Modal :show="showModalrepa" @close="closeModalrepa">
+            <div class="p-6">
+                <h1>¿Estás seguro de enviar a reparación?</h1>
+                <p>Tenga en cuenta que este equipo no se prestará nuevamente, y su estado se cambia manualmente.</p>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <SecondaryButton @click="closeModalrepa">Cancelar</SecondaryButton>
+                <DangerButton @click="reparationEquipment(v)">Sí, seguro</DangerButton>
             </div>
         </Modal>
     </AuthenticatedLayout>

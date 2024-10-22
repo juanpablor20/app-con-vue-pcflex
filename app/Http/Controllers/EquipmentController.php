@@ -15,23 +15,25 @@ class EquipmentController extends Controller
     
     
     public function index(Request $request)
-    {
-        $search = $request->input('search');
-        
-        $query = Equipment::query();
+{
+    $search = $request->input('search'); // Capturamos el valor 'search'
     
-        if ($search) {
-            $query->where('serie_equi', 'like', '%' . $search . '%');
-        }
-    
-        // Aquí puedes agregar el paginador como siempre
-        $equipments = $query->paginate(10);
-    
-        return inertia('equipments/Index', [
-            'equipments' => $equipments,
-            'search' => $search,
-        ]);
+    $query = Equipment::query();
+
+    if ($search) {
+        $query->where('serie_equi', 'like', '%' . $search . '%')
+              ->orWhere('type_equi', 'like', '%' . $search . '%')
+              ->orWhere('characteristics', 'like', '%' . $search . '%');
     }
+
+    $equipments = $query->paginate(10);
+
+    return inertia('equipments/Index', [
+        'equipments' => $equipments,
+        'search' => $search,  // Pasamos el valor de 'search' a la vista
+    ]);
+}
+
     
     
     
