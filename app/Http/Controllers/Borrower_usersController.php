@@ -17,6 +17,8 @@ class Borrower_usersController extends Controller
     {
         return Inertia::render('Borrower_users/Index', [
             'users' => Borrower_users::with('contacts', 'address')->paginate(),
+           
+
         ]);
     }
 
@@ -131,7 +133,8 @@ class Borrower_usersController extends Controller
         }
       
        // return to_route('Borrower_users.index')->withErrors(['success' => 'usuario editado con exito']);
-       return to_route('Borrower_users.index')->with(['success' => 'Usuario actualizado con éxito.']);
+       return to_route('Borrower_users.index')->with('success', 'Usuario actualizado con éxito.');
+       //return redirect()->route('user.dashboard')->withMessage('It works');
     }
     
 

@@ -13,10 +13,40 @@ import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import { useForm } from '@inertiajs/vue3';
+import {computed, onMounted } from "vue";
+import {usePage} from "@inertiajs/vue3";
 const props = defineProps({
-    users: Object,
     success: String,
+    users: Object,
+ 
 });
+const page = usePage();
+
+const successMessage  = computed(() => page.props.flash.success)
+onMounted(() => {
+  if (successMessage.value) {
+    Swal.fire({
+	  position: 'top-end',
+	  icon: 'success',
+	  title: successMessage.value,
+	  showConfirmButton: false,
+	  timer: 7000,
+	  toast: true,
+	});
+  }
+});
+    
+
+        
+  
+
+    const showErrorAlert = (message) => {
+	Swal.fire({
+	  icon: 'error',
+	  title: 'Oops...',
+	  text: message,
+	});
+  };
 
 const showModalDel = ref(false);
 const userToDelete = ref(null);
@@ -39,17 +69,16 @@ const closeModalDel = () => {
 };
 
 const deleteUser = () => {
+    console.log('Intentando eliminar usuario:', userToDelete.value);
     form.delete(route('Borrower_users.destroy', userToDelete.value.id), {
         onSuccess: () => {
-            showSuccessAlert('Usuario eliminado con éxito')
-            
+            showSuccessAlert('Usuario eliminado con éxito');
         },
         onError: (errors) => {
             console.error('Error al eliminar usuario:', errors);
         }
     });
 };
-
 
 const activateUser = (user) => {
     form.put(route('Borrower_users.activate', user.id), {
@@ -62,17 +91,10 @@ const activateUser = (user) => {
     });
 };
 
-const showSuccessAlert = (message) => {
-    closeModalDel();
-	Swal.fire({
-	  position: 'top-end',
-	  icon: 'success',
-	  title: message,
-	  showConfirmButton: false,
-	  timer: 8000,
-	  toast: true,
-	});
-  };
+
+
+    
+
   
 </script>
 
@@ -93,9 +115,7 @@ const showSuccessAlert = (message) => {
         </template>
 
 
-        <div v-if="success" class="alert alert-success">
-            {{ success }}
-          </div>
+        
         <div class="p-4 bg-white rounded-lg shadow-xs">
            
 
