@@ -9,10 +9,10 @@ import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import WarningButton from '@/Components/WarningButton.vue';
 import GreenButton from '@/Components/GreenButton.vue';
 import { useForm } from '@inertiajs/vue3';
+import CreateButton from '@/Components/CreateButton.vue';
+import EditButton from '@/Components/EditButton.vue';
 
 const showModalvue = ref(false);
 const showModalForm = ref(false);
@@ -21,6 +21,7 @@ const showModalDel = ref(false);
 const form = useForm({
     number: '',
     program_id: '',
+    errors: {}
 });
 
 const v = ref({ id: '', number: '', program_id: '' });
@@ -78,11 +79,11 @@ const props = defineProps({
 const save = () => {
     if (operation.value === 1) {
         form.post(route('indexCard.store'), {
-            onSuccess: () => { ok('Ficha Creada con éxito') }
+            onSuccess: () => { showSuccessAlert('Ficha Creada con éxito') }
         });
     } else {
         form.put(route('indexCard.update', v.value.id), {
-            onSuccess: () => { ok('Ficha Editada con éxito') }
+            onSuccess: () => { showSuccessAlert('Ficha Editada con éxito') }
         });
     }
 };
@@ -100,15 +101,43 @@ const ok = (m) => {
 
 const deleteprogram = () => {
     form.delete(route('indexCard.destroy', v.value.id), {
-        onSuccess: () => { ok('Programa inactivado con éxito') }
+        onSuccess: () => { showSuccessAlert('Programa inactivado con éxito') }
     });
 };
 
 const activateProgram = (indexCard) => {
     form.put(route('indexCard.activate', indexCard.id), {
-        onSuccess: () => { ok('Programa activado con éxito') }
+        onSuccess: () => { showSuccessAlert('Programa activado con éxito') }
     });
 };
+
+
+// alertas de fichas 
+
+
+const showSuccessAlert = (message) => {
+    closeModalForm();
+	Swal.fire({
+	  position: 'top-end',
+	  icon: 'success',
+	  title: message,
+	  showConfirmButton: false,
+	  timer: 8000,
+	  toast: true,
+	});
+  };
+
+
+  
+const showErrorAlert = (message) => {
+	Swal.fire({
+	  icon: 'error',
+	  title: 'Oops...',
+	  text: message,
+	});
+  };
+
+
 </script>
 
 <template>
@@ -159,13 +188,17 @@ const activateProgram = (indexCard) => {
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-sm">
+                                    <div class="flex space-x-2">
+
                                     <template v-if="indexCard.status === 'activo'">
-                                        <WarningButton @click="openModalForm(2, indexCard)">Editar</WarningButton>
+                                        <EditButton @click="openModalForm(2, indexCard)">Editar</EditButton>
                                         <DangerButton @click="openModalDel(indexCard)">Inactivar</DangerButton>
                                     </template>
                                     <template v-else>
                                         <GreenButton @click="activateProgram(indexCard)">Reactivar</GreenButton>
                                     </template>
+                                </div>
+
                                 </td>
                             </tr>
                         </tbody>
@@ -192,25 +225,30 @@ const activateProgram = (indexCard) => {
                     </option>
                 </select>
                 <InputError class="mt-1" :message="form.errors.program_id" />
+
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
+                    <CreateButton @click="save">Guardar</CreateButton>
+                </div>
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-                <PrimaryButton @click="save">Guardar</PrimaryButton>
-            </div>
+           
         </Modal>
 
         <!-- Modal para eliminación -->
         <Modal :show="showModalDel" @close="closeModaldel">
             <div class="p-6">
                 <h1>¿Estás seguro de realizar esta acción?</h1>
-                Tenga en cuenta que esta informacion no se Eliminara,
+                Tenga en cuenta que al inactivar la Ficha se inactivara todos los aprendices relacionados a ella,  pero no se eliminaran 
                 solo se cambia el estado a Inactivo..
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
+                    <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
+                </div>
             </div>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
-                <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
-            </div>
+           
         </Modal>
     </AuthenticatedLayout>
 </template>

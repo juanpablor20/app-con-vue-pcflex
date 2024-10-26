@@ -28,7 +28,8 @@ const form = useForm({
 	sexo: '',
 	telefono:'',
 	direccion:'',
-	email: ''
+	email: '',
+    errors: {}
 });
 
 const openModalDel = (user) => {

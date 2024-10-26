@@ -77,7 +77,7 @@ Route::put('/environments/activate/{id}', [EnvironmentController::class, 'active
 
 //rutas aprendices 
 
-    Route::put('Borrower_users/{id}/activate', [Borrower_usersController::class, 'activate'])->name('Borrower_users.activate') ->middleware('can:crud.gestionar.recursos');
+    Route::put('Borrower_users/{id}/activate', [Borrower_usersController::class, 'activate'])->name('Borrower_users.activate')->middleware('can:gestionar.recursos');
     Route::resource('Borrower_users', Borrower_usersController::class) ->middleware('can:gestionar.recursos');
 
 //rutas programas 

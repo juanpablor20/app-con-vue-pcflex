@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Borrower_users;
 use App\Models\Contacts;
 use App\Models\Addresses;
+use App\Models\Index_cards;
+use App\Models\Relationships;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -20,16 +22,25 @@ class Borrower_usersController extends Controller
 
     public function create()
     {
-        return Inertia::render('Borrower_users/Create');
+        $indexCards = Index_cards::where('status', 'activo')->get();
+        return Inertia::render('Borrower_users/Create', [
+            'index_cards' => $indexCards
+        ]);
     }
-
     public function store(Request $request)
     {
         request()->validate(Borrower_users::$rules);
-
+       
         // Crear el usuario
-        $user = Borrower_users::create($request->only('name', 'last_name', 'type_identification', 'number_identification', 'sex_user', 'gender_sex', 'roll'));
-
+        $user = Borrower_users::create($request->only
+        ('name', 
+        'last_name',
+         'type_identification',
+          'number_identification',
+           'sex_user',
+            'gender_sex',
+             'roll'));
+             $user->save();
         // Crear el contacto asociado
         Contacts::create([
             'id_user_con' => $user->id,
@@ -42,9 +53,26 @@ class Borrower_usersController extends Controller
             'id_user_add' => $user->id,
             'addres_add' => $request->address_add,
         ]);
+
+
+        $request->validate([
+            'index_card_id' => [
+                'required_if:roll,aprendiz', // Esta regla solo hace obligatorio index_card_id si el rol es aprendiz
+            ],
+        ]);
+   
+        if($user->roll === 'aprendiz')
+        {
+            Relationships::create([
+                'index_card_id' => $request->index_card_id,
+                'user_rel_id' => $user->id,
+   
+           ]);
+        }
+      
         return to_route('Borrower_users.index');
-       // return redirect()->route('Borrower_users.index');
     }
+ 
 
     public function show(string $id)
     {
@@ -57,11 +85,15 @@ class Borrower_usersController extends Controller
 
     public function edit(string $id)
     {
-        $user = Borrower_users::with('contacts', 'address')->find($id);
+        $user = Borrower_users::with('contacts', 'address', 'indexCards')->find($id);
+        $index_Cards = Index_cards::where('status', 'activo')->get();
+        
         return Inertia::render('Borrower_users/Edit', [
             'user' => $user,
+            'index_cards' => $index_Cards // Asegúrate de que esta línea esté aquí
         ]);
     }
+    
     
 
     public function update(Request $request, string $id)
@@ -97,7 +129,9 @@ class Borrower_usersController extends Controller
                 'address_add' => $request->address_add,
             ]);
         }
-        return to_route('Borrower_users.index');
+      
+       // return to_route('Borrower_users.index')->withErrors(['success' => 'usuario editado con exito']);
+       return to_route('Borrower_users.index')->with(['success' => 'Usuario actualizado con éxito.']);
     }
     
 

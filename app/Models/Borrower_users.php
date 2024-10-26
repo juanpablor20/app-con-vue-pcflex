@@ -9,6 +9,13 @@ class Borrower_users extends Model
     use HasFactory;
     public static $rules = [
       'name' => 'required',
+      'last_name' => 'required',
+      'type_identification' => 'required',
+      'number_identification' => 'required|unique:borrower_users,number_identification|regex:/^[0-9]{3,}$/',
+      'sex_user' => 'required',
+      'gender_sex' => 'required',
+      'roll' => 'required',
+      
       
     ];
 
@@ -19,7 +26,7 @@ class Borrower_users extends Model
         'number_identification', 
         'sex_user',
          'gender_sex', 
-         'roll'
+         'roll',
     ];
 
     public function contacts()
@@ -39,6 +46,7 @@ class Borrower_users extends Model
 
     public function indexCards()
     {
-        return $this->belongsToMany(Index_cards::class, 'relationships', 'user_rel_id', 'index_card_id');
+        return $this->belongsToMany(Index_cards::class, 'relationships',  'index_card_id', 'user_rel_id');
     }
+    
 }

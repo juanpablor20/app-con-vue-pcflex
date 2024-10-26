@@ -58,15 +58,35 @@ class IndexCardController extends Controller
     public function update(Request $request, string $id)
     {
         $indexCard = Index_cards::find($id);
-        $indexCard->fill($request->input())->saveOrFail();
+
+
+        $rules = [
+            'number' => 'required|unique:index_cards,number,' . $indexCard->id . '|regex:/^[0-9]{3,}$/',
+            'program_id' => 'required',
+        ];
+
+        $validatedIndexCard = $request->validate($rules);
+        $indexCard->fill($validatedIndexCard);
+        $indexCard->saveOrfail();
         return redirect('indexCard');
     }
 
+
+
+     // Validar los datos
+ 
+
+   
   
     public function destroy(string $id)
     {
        $indexCard = Index_cards::find($id);
        $indexCard->status = 'inactivo';
+       foreach ($indexCard->users as $user) {
+        $user->status = 'inactivo';
+        $user->save();
+    }
+
        $indexCard->save();
        return redirect('indexCard');
     }
