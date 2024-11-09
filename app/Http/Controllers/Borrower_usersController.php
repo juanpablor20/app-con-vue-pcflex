@@ -7,21 +7,37 @@ use App\Models\Contacts;
 use App\Models\Addresses;
 use App\Models\Index_cards;
 use App\Models\Relationships;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class Borrower_usersController extends Controller
 {
-    public function index()
-    {
-        return Inertia::render('Borrower_users/Index', [
-            'users' => Borrower_users::with('contacts', 'address')->paginate(),
-           
+    public function index(Request $request)
+{
+    $search = $request->input('search');
 
-        ]);
+    $query = Borrower_users::query();
+
+    if ($search) {
+        $query->where('name', 'like', '%' . $search . '%')
+              ->orWhere('number_identification', 'like', '%' . $search . '%');
+             
     }
 
+    $users = $query->with('contacts', 'address')->paginate(10);
+
+    return Inertia::render('Borrower_users/Index', [
+        'users' => $users,
+        'search' => $search,
+    ]);
+}
+
+ 
+   
+
+   
     public function create()
     {
         $indexCards = Index_cards::where('status', 'activo')->get();
@@ -71,15 +87,15 @@ class Borrower_usersController extends Controller
    
            ]);
         }
+        return to_route('Borrower_users.index')->with('success', 'Usuario Creado con exito con éxito.');
       
-        return to_route('Borrower_users.index');
     }
  
 
     public function show(string $id)
     {
-        $user = Borrower_users::with('contacts', 'address')->find($id);
-
+        $user = Borrower_users::with(['contacts', 'address', 'indexCards'])
+        ->findOrFail($id);
         return Inertia::render('Borrower_users/Show', [
             'user' => $user,
         ]);
@@ -101,7 +117,7 @@ class Borrower_usersController extends Controller
     public function update(Request $request, string $id)
     {
         $user = Borrower_users::findOrFail($id);
-        
+        $currentRole = $user->roll;
         $request->validate([
             'name' => 'required',
             'last_name' => 'required',
@@ -131,6 +147,29 @@ class Borrower_usersController extends Controller
                 'address_add' => $request->address_add,
             ]);
         }
+        $request->validate([
+            'index_card_id' => [
+                'required_if:roll,aprendiz', // Esta regla solo hace obligatorio index_card_id si el rol es aprendiz
+            ],
+        ]);
+        // if($user->roll === 'aprendiz'){
+        //     if($user->index_card_id){
+        //         $user->index_card_id->update([
+        //             'index_card_id' => $request->index_card_id,
+        //         ]);
+        //     }
+        // }
+       
+       
+        
+        
+        if ($currentRole !== 'aprendiz' && $request->roll === 'aprendiz') {
+            // Si el nuevo rol es "aprendiz", se crea la relación
+            $user->indexCards()->sync([$request->index_card_id]);
+        } elseif ($currentRole === 'aprendiz' && $request->roll !== 'aprendiz') {
+            // Si el nuevo rol no es "aprendiz", se elimina la relación
+            $user->indexCards()->detach();
+        }
       
        // return to_route('Borrower_users.index')->withErrors(['success' => 'usuario editado con exito']);
        return to_route('Borrower_users.index')->with('success', 'Usuario actualizado con éxito.');
@@ -141,6 +180,9 @@ class Borrower_usersController extends Controller
     public function destroy(string $id)
     {
         $user = Borrower_users::findOrFail($id);
+        if($user->status !== 'activo'){
+            return redirect()->route('Borrower_users.index')->withErrors(['error' => 'No se puede inactivar este usuario']);  // Puedes personalizar este mensaje según tu necesidad.
+        }
         $user->status = 'inactivo';
         $user->save();
         return to_route('Borrower_users.index');
@@ -153,6 +195,18 @@ class Borrower_usersController extends Controller
         $user->status = 'activo';
         $user->save();
         return to_route('Borrower_users.index');
+    }
+
+    public function pdfUsuarios()
+    {
+        $data = [
+            'title' => 'Reporte de Usuarios',
+        'users' => Borrower_users::with('contacts', 'address')->where('status', 'activo')->get(),
+    ];                                  
+
+    $pdf = Pdf::loadView('report_users', $data);
+    return $pdf->download('reporte_usuarios.pdf');
+
     }
 }
 

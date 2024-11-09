@@ -13,6 +13,7 @@ use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\reportsController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServiceController;
+use App\Models\Borrower_users;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -96,7 +97,7 @@ Route::put('/environments/activate/{id}', [EnvironmentController::class, 'active
 //rutas pdf
 
     Route::get('/pdfequipos', [EquipmentController::class, 'pdfequipos'])->name('pdfequipos');
-
+    Route::get('/pdfUsuarios', [Borrower_usersController::class, 'pdfUsuarios'])->name('pdfUsuarios');
     //ruta prestamos
 
    

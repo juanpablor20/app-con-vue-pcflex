@@ -7,6 +7,8 @@ const props = defineProps({
     user: Object,
 
 });
+
+console.log('users',  props.user);
 </script>
 
 <template>
@@ -58,11 +60,27 @@ const props = defineProps({
                         <label class="block text-sm font-medium text-gray-700">Dirección:</label>
                         <p class="text-sm text-gray-900">{{ user.address.addres_add }}</p>
                     </div>
+
                     <div class="mb-2">
                         <label class="block text-sm font-medium text-gray-700">Estado:</label>
                         <p class="text-sm text-gray-900">{{ user.status === 'activo' ? 'Activo' : 'Inactivo' }}</p>
                     </div>
                 </div>
+             
+                <h3>Información de la ficha</h3>
+                <div v-if="user.indexCards && user.indexCards.length > 0">
+                    <div v-for="card in user.indexCards" :key="card.id" class="mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Número de ficha:</label>
+                        <p class="text-sm text-gray-900">{{ card.number }}</p>
+                        <label class="block text-sm font-medium text-gray-700">Programa ID:</label>
+                        <p class="text-sm text-gray-900">{{ card.program_id }}</p>
+                    </div>
+                </div>
+                
+                
+                
+                
+                
             </div>
 
 

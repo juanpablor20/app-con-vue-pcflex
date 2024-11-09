@@ -46,7 +46,10 @@ class Borrower_users extends Model
 
     public function indexCards()
     {
-        return $this->belongsToMany(Index_cards::class, 'relationships',  'index_card_id', 'user_rel_id');
+        return $this->belongsToMany(Index_cards::class, 'relationships', 'user_rel_id', 'index_card_id');
     }
+
+
+   
     
 }

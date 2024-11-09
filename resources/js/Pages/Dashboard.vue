@@ -58,7 +58,7 @@
 	  </div>
   
 	  <Modal :show="showModalForm" @close="closeModalForm">
-		<div class="p-6">
+		<div class="p-6 space-y-4">
 		  <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
 		  <InputLabel for="number" value="Número de Documento" />
 		  <TextInput v-model="form.user_borrower_id" required />
@@ -68,23 +68,26 @@
           <InputError class="mt-1" :message="form.errors.equipment_id" />
 
 		  <InputLabel for="environment_id" value="Ambiente a Trasladar" class="mt-4" />
-		  <select v-model="form.environment_id">
+		  <select v-model="form.environment_id" class="mt-1 w-1/2">
 			  <option v-for="environment in environments" :key="environment.id" :value="environment.id">
 				  {{ environment.names }}
 			  </option>
 		  </select>
 		  <InputError class="mt-1" :message="form.errors.environment_id" />
+
+
+		  <div class="mt-6 flex justify-end gap-4">
+			<SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
+			<GreenButton @click="save">Guardar</GreenButton>
+		  </div>
 		</div>
   
-		<div class="mt-6 flex justify-end">
-		  <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-		  <PrimaryButton @click="save">Guardar</PrimaryButton>
-		</div>
+		
 	  </Modal>
 
 	  <!-- modal devolucion -->
 	  <Modal :show="showModaldevolution" @close="closeModalForm">
-		<div class="p-6">
+		<div class="p-6 space-y-4">
 		  <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
 		  <InputLabel for="number" value="Número de Documento" />
 		  <TextInput v-model="form.user_returner_id" required />
@@ -92,12 +95,15 @@
 		  <InputLabel for="" value="Numero de Serie"/>
 		  <TextInput v-model="form.equipment_id" required />
           <InputError class="mt-1" :message="form.errors.equipment_id" />
+
+
+		  <div class="mt-6 flex justify-end gap-3">
+			<SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
+			<GreenButton @click="save">Guardar</GreenButton>
+		  </div>
 		</div>
   
-		<div class="mt-6 flex justify-end">
-		  <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-		  <PrimaryButton @click="save">Guardar</PrimaryButton>
-		</div>
+		
 	  </Modal>
 	</AuthenticatedLayout>
   </template>
@@ -119,6 +125,7 @@
   import PrimaryButton from '@/Components/PrimaryButton.vue';
   import NavLink from '@/Components/NavLink.vue';
   import ShowButton from '@/Components/ShowButton.vue';
+import CreateButton from '@/Components/CreateButton.vue';
   
   const showModalForm = ref(false);
   const showModaldevolution = ref(false);

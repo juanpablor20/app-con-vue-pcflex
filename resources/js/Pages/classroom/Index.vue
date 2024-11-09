@@ -13,6 +13,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import WarningButton from '@/Components/WarningButton.vue';
 import GreenButton from '@/Components/GreenButton.vue';
 import { useForm } from '@inertiajs/vue3';
+import EditButton from '@/Components/EditButton.vue';
 
 const showModalvue = ref(false);
 const showModalForm = ref(false);
@@ -20,10 +21,10 @@ const showModalDel = ref(false);
 
 const form = useForm({
     names: '',
-   
+
 });
 
-const v = ref({ id: '',  names: '' });
+const v = ref({ id: '', names: '' });
 
 const title = ref('');
 const operation = ref(1);
@@ -39,10 +40,10 @@ const openModalForm = (op, environments) => {
     showModalForm.value = true;
     operation.value = op;
     if (op === 1) {
-        title.value = 'Crear Ficha';
+        title.value = 'Crear Lugar de traslado';
         form.reset();
     } else {
-        title.value = 'Editar Ficha';
+        title.value = 'Editar Lugar de traslado';
         v.value = { ...environments };
         form.names = environments.names;
     }
@@ -71,7 +72,7 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    programs: Array
+
 });
 
 const save = () => {
@@ -91,7 +92,7 @@ const ok = (m) => {
     closeModaldel();
     form.reset();
     msj.value = m;
-    classMsj.value = 'Ambiente'; 
+    classMsj.value = 'Ambiente';
     setTimeout(() => {
         classMsj.value = 'hidden';
     }, 8000);
@@ -111,10 +112,11 @@ const activateProgram = (indexCard) => {
 </script>
 
 <template>
+
     <Head title="Programas" />
     <AuthenticatedLayout>
         <template #header>
-            Ficha 
+            Lugar de traslados
             <GreenButton @click="openModalForm(1)">Crear</GreenButton>
         </template>
 
@@ -122,7 +124,9 @@ const activateProgram = (indexCard) => {
             <div class="inline-flex overflow-hidden mb-4 w-full bg-white rounded-lg shadow-md" :class="classMsj">
                 <div class="flex justify-center items-center w-12 bg-blue-500">
                     <svg class="w-6 h-6 text-white fill-current" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM21.6667 28.3333H18.3334V25H21.6667V28.3333ZM21.6667 21.6666H18.3334V11.6666H21.6667V21.6666Z"></path>
+                        <path
+                            d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM21.6667 28.3333H18.3334V25H21.6667V28.3333ZM21.6667 21.6666H18.3334V11.6666H21.6667V21.6666Z">
+                        </path>
                     </svg>
                 </div>
                 <div class="px-4 py-2 -mx-3">
@@ -137,7 +141,8 @@ const activateProgram = (indexCard) => {
                 <div class="overflow-x-auto w-full">
                     <table class="w-full whitespace-no-wrap">
                         <thead>
-                            <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b">
+                            <tr
+                                class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b">
                                 <th class="px-4 py-3">Ambientes</th>
                                 <th class="px-4 py-3">Estado</th>
                                 <th class="px-4 py-3">Acciones</th>
@@ -149,25 +154,29 @@ const activateProgram = (indexCard) => {
                                     {{ environments.names }}
                                 </td>
                                 <td class="px-4 py-3 text-sm">
-                                    <span :class="{'text-red-500': environments.status === 'inactivo', 'text-green-500': environments.status === 'activo'}">
+                                    <span
+                                        :class="{ 'text-red-500': environments.status === 'inactivo', 'text-green-500': environments.status === 'activo' }">
                                         {{ environments.status }}
                                     </span>
                                 </td>
-                               
+
                                 <td class="px-4 py-3 text-sm">
-                                    <template v-if="environments.status === 'activo'">
-                                        <WarningButton @click="openModalForm(2, environments)">Editar</WarningButton>
-                                        <DangerButton @click="openModalDel(environments)">Inactivar</DangerButton>
-                                    </template>
-                                    <template v-else>
-                                        <GreenButton @click="activateProgram(environments)">Reactivar</GreenButton>
-                                    </template>
+                                    <div class="flex space-x-3">
+                                        <template v-if="environments.status === 'activo'">
+                                            <EditButton @click="openModalForm(2, environments)">Editar</EditButton>
+                                            <DangerButton @click="openModalDel(environments)">Inactivar</DangerButton>
+                                        </template>
+                                        <template v-else>
+                                            <GreenButton @click="activateProgram(environments)">Reactivar</GreenButton>
+                                        </template>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase bg-gray-50 border-t sm:grid-cols-9">
+                <div
+                    class="px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase bg-gray-50 border-t sm:grid-cols-9">
                     <Pagination :links="environments.links" />
                 </div>
             </div>
@@ -175,19 +184,21 @@ const activateProgram = (indexCard) => {
 
         <!-- Modal para el formulario -->
         <Modal :show="showModalForm" @close="closeModalForm">
-            <div class="p-6">
+            <div class="p-6 space-y-4">
                 <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
-                <InputLabel for="number" value="Número de Ficha" />
+                <InputLabel for="number" value="Lugar de traslado" />
                 <TextInput v-model="form.names" required />
                 <InputError class="mt-1" :message="form.errors.names" />
 
-                
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
+                    <GreenButton @click="save">Guardar</GreenButton>
+                </div>
+
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-                <PrimaryButton @click="save">Guardar</PrimaryButton>
-            </div>
+
         </Modal>
 
         <!-- Modal para eliminación -->
@@ -196,11 +207,14 @@ const activateProgram = (indexCard) => {
                 <h1>¿Estás seguro de realizar esta acción?</h1>
                 Tenga en cuenta que esta informacion no se Eliminara,
                 solo se cambia el estado a Inactivo..
+
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
+                    <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
+                </div>
             </div>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
-                <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
-            </div>
+           
         </Modal>
     </AuthenticatedLayout>
 </template>

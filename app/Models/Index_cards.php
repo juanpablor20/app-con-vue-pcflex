@@ -9,10 +9,10 @@ class Index_cards extends Model
 {
     static $rules = [
         'number' => ['required', 'numeric', 'unique:index_cards,number'],
-    'program_id' => 'required'
+        'program_id' => 'required'
     ];
 
-    
+
     protected $fillable = ['number', 'program_id'];
     use HasFactory;
 
