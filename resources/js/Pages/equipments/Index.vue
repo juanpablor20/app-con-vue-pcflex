@@ -16,6 +16,7 @@ import CreateButton from "@/Components/CreateButton.vue";
 import { useForm } from "@inertiajs/vue3";
 import ShowButton from "@/Components/ShowButton.vue";
 import SearchForm from "@/Components/SearchForm.vue";
+import NavLink from "@/Components/NavLink.vue";
 const showModalvue = ref(false);
 const showModalForm = ref(false);
 const showModalDel = ref(false);
@@ -27,7 +28,7 @@ const form = useForm({
     type_equi: "",
     characteristics: "",
     serie_equi: "",
-    errors: {}
+    errors: {},
 });
 
 // Información de equipo seleccionada
@@ -51,10 +52,17 @@ const filteredEquipments = computed(() => {
     if (!searchTerm.value) {
         return props.equipments.data;
     }
-    return props.equipments.data.filter(equipment => 
-        equipment.serie_equi.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-        equipment.type_equi.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-        equipment.characteristics.toLowerCase().includes(searchTerm.value.toLowerCase())
+    return props.equipments.data.filter(
+        (equipment) =>
+            equipment.serie_equi
+                .toLowerCase()
+                .includes(searchTerm.value.toLowerCase()) ||
+            equipment.type_equi
+                .toLowerCase()
+                .includes(searchTerm.value.toLowerCase()) ||
+            equipment.characteristics
+                .toLowerCase()
+                .includes(searchTerm.value.toLowerCase())
     );
 });
 // Métodos para abrir y cerrar modales
@@ -86,10 +94,10 @@ const openModalReactive = (equipment) => {
     v.value = { ...equipment };
 };
 
-
 const closeModalForm = () => {
     showModalForm.value = false;
-    errors: {}
+    errors: {
+    }
     form.reset();
 };
 const closeModaldel = () => {
@@ -102,7 +110,6 @@ const closeModalrepa = () => {
 const closeModalReactive = () => {
     showModalReactive.value = false;
 };
-
 
 // Guardar equipo (crear o editar)
 const save = () => {
@@ -118,30 +125,28 @@ const save = () => {
                 showSuccessAlert("Equipo editado con éxito");
             },
             onError: (errors) => {
-
                 closeModalForm();
 
-showErrorAlert(errors.error);
-}
+                showErrorAlert(errors.error);
+            },
         });
     }
 };
 
 // Mostrar mensaje de éxito
 
-
 const showSuccessAlert = (message) => {
     closeModalForm();
-	Swal.fire({
-	  position: 'top-end',
-	  icon: 'success',
-	  title: message,
-	  showConfirmButton: false,
-	  timer: 8000,
-	  toast: true,
-	});
-  };
-  
+    Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: message,
+        showConfirmButton: false,
+        timer: 8000,
+        toast: true,
+    });
+};
+
 // Eliminar equipo
 // Eliminar equipo
 const deleteprogram = () => {
@@ -151,13 +156,10 @@ const deleteprogram = () => {
             showSuccessAlert("Equipo inactivado con éxito"); // Mostrar el mensaje de éxito
         },
         onError: (errors) => {
-
-
             closeModaldel(); // Cerrar el modal de eliminación
-        
-        showErrorAlert(errors.error);
-        }
-        
+
+            showErrorAlert(errors.error);
+        },
     });
 };
 
@@ -169,25 +171,24 @@ const reparationEquipment = (equipments) => {
             showSuccessAlert("Equipo enviado a reparación"); // Mostrar el mensaje de éxito
         },
         onError: (errors) => {
-            closeModalrepa(); 
-        showErrorAlert(errors.error);
-        }
+            closeModalrepa();
+            showErrorAlert(errors.error);
+        },
     });
 };
 
-
 const showErrorAlert = (message) => {
-	Swal.fire({
-	  icon: 'error',
-	  title: 'Oops...',
-	  text: message,
-	});
-  };
+    Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: message,
+    });
+};
 
 const activateProgram = (equipments) => {
     form.put(route("equipments.activate", equipments.id), {
         onSuccess: () => {
-            closeModalReactive(); 
+            closeModalReactive();
             showSuccessAlert("Equipo activado con éxito");
         },
     });
@@ -195,7 +196,7 @@ const activateProgram = (equipments) => {
 
 // Descargar PDF
 const downloadPdf = () => {
-    window.location.href = route('pdfequipos');
+    window.location.href = route("pdfequipos");
 };
 </script>
 
@@ -205,29 +206,33 @@ const downloadPdf = () => {
         <template #header>
             Equipos
             <div class="flex justify-between items-center">
-               <div class="flex gap-x-4">
-                <button @click="downloadPdf" class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
-                    <i class="fa fa-file" aria-hidden="true"></i>
-                    PDF
-                </button>
-                <CreateButton @click="openModalForm(1)">
-                    <i class="fas fa-plus mr-1"></i>
-                    Crear
-                </CreateButton>
-               </div>
+                <div class="flex gap-x-4">
+                    <button
+                        @click="downloadPdf"
+                        class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                    >
+                        <i class="fa fa-file" aria-hidden="true"></i>
+                        PDF
+                    </button>
+                    <CreateButton @click="openModalForm(1)">
+                        <i class="fas fa-plus mr-1"></i>
+                        Crear
+                    </CreateButton>
+                </div>
                 <SearchForm v-model:search="searchTerm" />
-
-
             </div>
         </template>
 
         <div class="p-4 bg-white rounded-lg shadow-xs">
-           
-            <div class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs">
+            <div
+                class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs"
+            >
                 <div class="overflow-x-auto w-full">
                     <table class="w-full whitespace-no-wrap">
                         <thead>
-                            <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b">
+                            <tr
+                                class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b"
+                            >
                                 <th class="px-4 py-3">Tipo de Equipo</th>
                                 <th class="px-4 py-3">Características</th>
                                 <th class="px-4 py-3">Número de Serie</th>
@@ -236,117 +241,217 @@ const downloadPdf = () => {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y">
-                            <tr v-for="equipment in filteredEquipments" :key="equipment.id" class="text-gray-700">
-                                <td class="px-4 py-3 text-sm">{{ equipment.type_equi }}</td>
-                                <td class="px-4 py-3 text-sm">{{ equipment.characteristics }}</td>
-                                <td class="px-4 py-3 text-sm">{{ equipment.serie_equi }}</td>
+                            <tr
+                                v-for="equipment in filteredEquipments"
+                                :key="equipment.id"
+                                class="text-gray-700"
+                            >
                                 <td class="px-4 py-3 text-sm">
-                                    <span :class="{
-                                        'text-red-500': equipment.status === 'inactivo',
-                                        'text-red-700': equipment.status === 'prestado',
-                                        'text-green-500': equipment.status === 'disponible',
-                                        'text-purple-800': equipment.status === 'reparacion',
-                                    }">{{ equipment.status }}</span>
+                                    {{ equipment.type_equi }}
                                 </td>
                                 <td class="px-4 py-3 text-sm">
-                                    <div class="flex space-x-2">
-                                        <template v-if="equipment.status === 'disponible' || equipment.status === 'prestado'">
-                                            <EditButton @click="openModalForm(2, equipment)">Editar</EditButton>
-                                            <ShowButton @click="openModalrepa(equipment)">Reparación</ShowButton>
-                                            <DeleteButton @click="openModalDel(equipment)">Inactivar</DeleteButton>
-                                        </template>
-                                        <template v-else>
-                                            <GreenButton @click="openModalReactive(equipment)">Reactivar</GreenButton>
-                                        </template>
-                                    </div>
+                                    {{ equipment.characteristics }}
                                 </td>
+                                <td class="px-4 py-3 text-sm">
+                                    {{ equipment.serie_equi }}
+                                </td>
+                                <td class="px-4 py-3 text-sm">
+                                    <span
+                                        :class="{
+                                            'text-red-500':
+                                                equipment.status === 'inactivo',
+                                            'text-red-700':
+                                                equipment.status === 'prestado',
+                                            'text-green-500':
+                                                equipment.status ===
+                                                'disponible',
+                                            'text-purple-800':
+                                                equipment.status ===
+                                                'reparacion',
+                                        }"
+                                        >{{ equipment.status }}</span
+                                    >
+                                </td>
+                               <td class="px-4 py-3 text-sm">
+    <div class="flex space-x-2">
+        <!-- Si el equipo está "prestado", solo muestra el botón "Info" -->
+        <template v-if="equipment.status === 'prestado'">
+            <NavLink :href="route('detalles.show', equipment.id)">
+                <ShowButton>Info</ShowButton>
+            </NavLink>
+        </template>
+
+        <!-- Si el equipo está "disponible", muestra los botones de edición, reparación e inactivación -->
+        <template v-else-if="equipment.status === 'disponible'">
+            <EditButton @click="openModalForm(2, equipment)">Editar</EditButton>
+            <ShowButton @click="openModalrepa(equipment)">Reparación</ShowButton>
+            <DeleteButton @click="openModalDel(equipment)">Inactivar</DeleteButton>
+        </template>
+
+        <!-- Si el equipo tiene otro estado, muestra el botón "Reactivar" -->
+        <template v-else>
+            <GreenButton @click="openModalReactive(equipment)">Reactivar</GreenButton>
+        </template>
+    </div>
+</td>
+
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="flex items-center justify-between p-4">
-                   <Pagination :links="props.equipments.links" :query="searchTerm.value" />
-
+                    <Pagination
+                        :links="props.equipments.links"
+                        :query="searchTerm.value"
+                    />
                 </div>
             </div>
         </div>
         <Modal :show="showModalForm" @close="closeModalForm">
-            <div class="p-6 space-y-4">
-                <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
-                <InputLabel for="type_equi" value="Tipo de Equipo" />
-                <TextInput v-model="form.type_equi" required placeholder="ejemplo: portatil" />
-                <InputError class="mt-1" :message="form.errors.type_equi" />
-                
-                <InputLabel for="characteristics" value="Características" />
-                <TextInput v-model="form.characteristics" required  placeholder="ejemplo: lenovo gaming"/>
-                <InputError class="mt-1" :message="form.errors.characteristics" />
-                
-                <InputLabel for="serie_equi" value="Número de Serie" />
-                <TextInput v-model="form.serie_equi" required />
-               <InputError class="mt-1" :message="form.errors.serie_equi" /> 
-                <!-- <InputError class="mt-1" :message="!isSerieEquiValid ? 'El número de serie debe contener al menos 3 dígitos.' : ''" /> -->
-                <div class="flex justify-end gap-x-2">
-                    <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-    
-                    <CreateButton @click="save">Guardar</CreateButton>
+            <div class="p-6 space-y-6">
+                <!-- Título del modal -->
+                <h2 class="text-xl font-semibold text-gray-900 border-b pb-4">
+                    {{ title }}
+                </h2>
+
+                <!-- Campo: Tipo de Equipo -->
+                <div class="space-y-2">
+                    <InputLabel
+                        for="type_equi"
+                        value="Tipo de Equipo"
+                        class="font-medium text-gray-700"
+                    />
+                    <TextInput
+                        v-model="form.type_equi"
+                        id="type_equi"
+                        required
+                        placeholder="Ejemplo: Portátil"
+                        class="w-full mt-1"
+                    />
+                    <InputError class="mt-1" :message="form.errors.type_equi" />
+                </div>
+
+                <!-- Campo: Características -->
+                <div class="space-y-2">
+                    <InputLabel
+                        for="characteristics"
+                        value="Características"
+                        class="font-medium text-gray-700"
+                    />
+                    <TextInput
+                        v-model="form.characteristics"
+                        id="characteristics"
+                        required
+                        placeholder="Ejemplo: Lenovo Gaming"
+                        class="w-full mt-1"
+                    />
+                    <InputError
+                        class="mt-1"
+                        :message="form.errors.characteristics"
+                    />
+                </div>
+
+                <!-- Campo: Número de Serie -->
+                <div class="space-y-2">
+                    <InputLabel
+                        for="serie_equi"
+                        value="Número de Serie"
+                        class="font-medium text-gray-700"
+                    />
+                    <TextInput
+                        v-model="form.serie_equi"
+                        id="serie_equi"
+                        required
+                        placeholder="Ejemplo: 123456"
+                        class="w-full mt-1"
+                    />
+                    <InputError
+                        class="mt-1"
+                        :message="form.errors.serie_equi"
+                    />
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex justify-end gap-x-4 pt-6 border-t">
+                    <SecondaryButton
+                        @click="closeModalForm"
+                        class="bg-gray-300 hover:bg-gray-400"
+                    >
+                        Cancelar
+                    </SecondaryButton>
+                    <EditButton
+                        @click="save"
+                        class="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        Guardar
+                    </EditButton>
                 </div>
             </div>
-
-            
         </Modal>
 
         <!-- Modal para eliminación -->
         <Modal :show="showModalDel" @close="closeModaldel">
-
             <div class="p-6 space-y-4">
-
-            
-            <div class="p-6 space-y-4">
-                <h1>¿Estás seguro de realizar esta acción?</h1>
-                <p>Tenga en cuenta que esta información no se eliminará, solo se cambia el estado a inactivo.</p>
+                <div class="p-6 space-y-4">
+                    <h1>¿Estás seguro de realizar esta acción?</h1>
+                    <p>
+                        Tenga en cuenta que esta información no se eliminará,
+                        solo se cambia el estado a inactivo.
+                    </p>
+                </div>
+                <div class="flex justify-end gap-x-2">
+                    <SecondaryButton @click="closeModaldel"
+                        >Cancelar</SecondaryButton
+                    >
+                    <DangerButton @click="deleteprogram"
+                        >Sí, seguro</DangerButton
+                    >
+                </div>
             </div>
-            <div class="flex justify-end gap-x-2">
-                <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
-                <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
-            </div>
-        </div>
         </Modal>
 
         <!-- Modal para reparación -->
         <Modal :show="showModalrepa" @close="closeModalrepa">
             <div class="p-6 space-y-4">
-
-            <div class="p-6">
-                <h1>¿Estás seguro de enviar a reparación?</h1>
-                <p>Tenga en cuenta que este equipo no se prestará nuevamente, y su estado se cambia manualmente.</p>
+                <div class="p-6">
+                    <h1>¿Estás seguro de enviar a reparación?</h1>
+                    <p>
+                        Tenga en cuenta que este equipo no se prestará
+                        nuevamente, y su estado se cambia manualmente.
+                    </p>
+                </div>
+                <div class="flex justify-end gap-x-2">
+                    <SecondaryButton @click="closeModalrepa"
+                        >Cancelar</SecondaryButton
+                    >
+                    <DangerButton @click="reparationEquipment(v)"
+                        >Sí, seguro</DangerButton
+                    >
+                </div>
             </div>
-            <div class="flex justify-end gap-x-2">
-                <SecondaryButton @click="closeModalrepa">Cancelar</SecondaryButton>
-                <DangerButton @click="activateProgram(v)">Sí, seguro</DangerButton>
-            </div>
-        </div>
-
         </Modal>
-
-
-
-
 
         <Modal :show="showModalReactive" @close="closeModalReactive">
             <div class="p-6 space-y-4">
-
-            <div class="p-6">
-                <h1>¿Estás seguro de  que el Equipo se ecuentra en biblioteca?</h1>
-                <p>Tenga en cuenta que al reactivar el equipo, El sistema asume que el equipo Esta en Biblioteca.</p>
+                <div class="p-6">
+                    <h1>
+                        ¿Estás seguro de que el Equipo se ecuentra en
+                        biblioteca?
+                    </h1>
+                    <p>
+                        Tenga en cuenta que al reactivar el equipo, El sistema
+                        asume que el equipo Esta en Biblioteca.
+                    </p>
+                </div>
+                <div class="flex justify-end gap-x-2">
+                    <SecondaryButton @click="closeModalReactive"
+                        >Cancelar</SecondaryButton
+                    >
+                    <DangerButton @click="activateProgram(v)"
+                        >Sí, Reactivar</DangerButton
+                    >
+                </div>
             </div>
-            <div class="flex justify-end gap-x-2">
-                <SecondaryButton @click="closeModalReactive">Cancelar</SecondaryButton>
-                <DangerButton @click="activateProgram(v)">Sí, Reactivar</DangerButton>
-            </div>
-        </div>
-
         </Modal>
-
-
     </AuthenticatedLayout>
 </template>

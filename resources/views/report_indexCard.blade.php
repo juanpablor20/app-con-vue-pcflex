@@ -29,20 +29,16 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Tipo de Equipo</th>
-                <th>Caracterisicas</th>
-                <th>Numero de Seirie</th>
-                <th>Estado</th>
+                <th>Numero de ficha</th>
+                <th>Programa</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($equipments as $equipment)
+            @foreach($indexCards as $indexCard)
             <tr>
-                <td>{{ $equipment->id }}</td>
-                <td>{{ $equipment->type_equi }}</td>
-                <td>{{ $equipment->characteristics }}</td>
-                <td>{{ $equipment->serie_equi  }}</td>
-                <td>{{ $equipment->status }}</td>
+                <td>{{ $indexCard->id }}</td>
+                <td>{{ $indexCard->number }}</td>
+                <td>{{ $indexCard->programs?->names_pro }}</td>
             </tr>
             @endforeach
         </tbody>

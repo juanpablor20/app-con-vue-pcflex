@@ -8,7 +8,6 @@ const props = defineProps({
     services: {
         type: Object,
     },
-    
 });
 </script>
 
@@ -18,7 +17,7 @@ const props = defineProps({
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Detalles del Usuario</h2>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Detalles del Préstamo</h2>
                 <NavLink :href="route('dashboard')">
                     <SecondaryButton>
                         Volver
@@ -28,91 +27,107 @@ const props = defineProps({
         </template>
 
         <div class="p-6 bg-white rounded-lg shadow-sm">
+            <!-- Mensaje "Pendiente por entrega" en la parte derecha -->
+            <div class="flex justify-end mb-6">
+                <div class="flex items-center bg-red-50 p-4 rounded-lg border border-red-200">
+                    <i class="fas fa-warning text-3xl text-red-600 mr-3"></i>
+                    <div>
+                        <h3 class="text-lg font-semibold text-red-600">Pendiente por entrega</h3>
+                        <p class="text-sm text-red-500">El equipo aún no ha sido devuelto.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Personal -->
             <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-user fa-lg mr-2"></i> Información Personal
+                <h3 class="text-lg font-semibold mb-4 flex items-center text-blue-600">
+                    <i class="fas fa-user fa-lg mr-2"></i> Información Personal del Prestatario
                 </h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Nombre:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.name }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.users.name }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Apellido:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.last_name }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.users.last_name }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Identificación:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.number_identification }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.users.number_identification }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Sexo:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.sex_user }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.users.sex_user }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Email:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.contacts.email_con }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.users.contacts.email_con }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Teléfono:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.contacts.telephone_con }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.users.contacts.telephone_con }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Dirección:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.address.addres_add }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.users.address.addres_add }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Estado:</label>
-                        <p class="text-sm text-gray-900">{{ services.users.status === 'activo' ? 'Activo' : 'Inactivo' }}</p>
+                        <p class="text-sm font-semibold">
+                            {{ services.users.status }}
+                        </p>
                     </div>
                 </div>
                 <hr class="my-6 border-gray-300">
             </div>
 
+            <!-- Información del Equipo -->
             <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-laptop fa-lg mr-2"></i> Información Del Equipo
+                <h3 class="text-lg font-semibold mb-4 flex items-center text-blue-600">
+                    <i class="fas fa-laptop fa-lg mr-2"></i> Información del Equipo
                 </h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Tipo de Equipo:</label>
-                        <p class="text-sm text-gray-900">{{ services.equipment.type_equi }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.equipment.type_equi }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Características:</label>
-                        <p class="text-sm text-gray-900">{{ services.equipment.characteristics }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.equipment.characteristics }}</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Identificación:</label>
-                        <p class="text-sm text-gray-900">{{ services.equipment.serie_equi }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.equipment.serie_equi }}</p>
                     </div>
                 </div>
                 <hr class="my-6 border-gray-300">
             </div>
 
-            <div>
-                <h3 class="text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-map-marker-alt fa-lg mr-2"></i> Información Del Lugar de Traslado
+            <!-- Información del Lugar de Traslado -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4 flex items-center text-blue-600">
+                    <i class="fas fa-map-marker-alt fa-lg mr-2"></i> Información del Lugar de Traslado
                 </h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Ambiente:</label>
-                        <p class="text-sm text-gray-900">{{ services.environment.names }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.environment.names }}</p>
                     </div>
                 </div>
                 <hr class="my-6 border-gray-300">
-
             </div>
+
+            <!-- Información del Bibliotecario -->
             <div>
-                <h3 class="text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-user fa-lg mr-2"></i> Información Del Bibliotecario
+                <h3 class="text-lg font-semibold mb-4 flex items-center text-blue-600">
+                    <i class="fas fa-user fa-lg mr-2"></i> Información del Bibliotecario que realizó el préstamo
                 </h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Nombre:</label>
-                        <p class="text-sm text-gray-900">{{ services.librarian.name }}</p>
+                        <p class="text-sm text-gray-900 font-semibold">{{ services.librarian.name }}</p>
                     </div>
-
                 </div>
             </div>
         </div>

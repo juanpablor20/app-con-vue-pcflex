@@ -56,7 +56,7 @@ const props = defineProps({
             </div>
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-user fa-lg mr-2"></i> Información Personal
+                    <i class="fas fa-user fa-lg mr-2"></i> Información Personal del prestatario
                 </h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="mb-4">
@@ -137,6 +137,10 @@ const props = defineProps({
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Nombre:</label>
                         <p class="text-sm text-gray-900">{{ services.librarian.name }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Apellido:</label>
+                        <p class="text-sm text-gray-900">{{ services.librarian.last_name }}</p>
                     </div>
 
                 </div>

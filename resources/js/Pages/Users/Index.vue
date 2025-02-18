@@ -132,7 +132,11 @@ const deleteUser = () => {
             </div>
         </div>
         <Modal :show="showModalDel" @close="closeModalDel">
+          <div class="flex justify-center mb-4">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-600"></i> <!-- Icono de advertencia -->
+        </div>
             <div class="p-6">
+            
                 <h1 class="text-lg font-semibold">¿Estás seguro de realizar esta acción?</h1>
                 <p>Esta acción no se puede deshacer.</p>
             </div>

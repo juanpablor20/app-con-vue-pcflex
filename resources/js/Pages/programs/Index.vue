@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -15,7 +15,7 @@ import { useForm } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import EditButton from '@/Components/EditButton.vue';
 import CreateButton from '@/Components/CreateButton.vue';
-
+import SearchProgram from '@/Components/SearchProgram.vue';
 const showModalvue = ref(false);
 const showModalForm = ref(false);
 const showModalDel = ref(false);
@@ -33,19 +33,36 @@ const operation = ref(1);
 const msj = ref('');
 const classMsj = ref('hidden');
 
+
+const searchTerm = ref("");
+const filteredProgram = computed(() => {
+    if (!searchTerm.value) {
+        return props.programs.data;
+    }
+    return props.programs.data.filter((programs) => {
+        return programs.names_pro
+            .toLowerCase()
+            .includes(searchTerm.value.toLowerCase());
+    });
+});
+
 const openModalvue = (program) => {
     showModalvue.value = true;
     v.value = { ...program };
+};
+
+const downloadPdf = () => {
+    window.location.href = route('pdfPrograms');
 };
 
 const openModalForm = (op, program) => {
     showModalForm.value = true;
     operation.value = op;
     if (op === 1) {
-        title.value = 'Crear Ficha';
+        title.value = 'Crear Programa';
         form.reset();
     } else {
-        title.value = 'Editar Ficha';
+        title.value = 'Editar Programa';
         v.value = { ...program };
         form.names_pro = program.names_pro;
         form.code_pro = program.code_pro;
@@ -60,11 +77,13 @@ const openModalDel = (program) => {
 
 const closeModalvue = () => {
     showModalvue.value = false;
+    
 };
 
 const closeModalForm = () => {
     showModalForm.value = false;
     form.reset();
+    form.clearErrors();
 };
 
 const closeModaldel = () => {
@@ -123,9 +142,11 @@ const save = () => {
 const deleteprogram = () => {
     form.delete(route('programs.destroy', v.value.id), {
         onSuccess: () => {
-            showSuccessAlert("Programa Editado con éxito");
+            closeModaldel();
+            showSuccessAlert("Programa Inactivado con éxito");
         },
         onError: (errors) => {
+            closeModaldel();
         showErrorAlert(errors.error);
             }
     });
@@ -148,17 +169,45 @@ const activateProgram = (program) => {
     <Head title="Programas" />
     <AuthenticatedLayout>
         <template #header>
-            Programas 
+               <div class="flex items-center mb-4">
+                <i class="fas fa-laptop-code  text-indigo-600 mr-2"></i>
+                <!-- Icono -->
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Programa
+                </h2>
+            </div>
+
+            <!-- Contenedor de botones y búsqueda -->
             <div class="flex justify-between items-center">
+                <!-- Botones (PDF y Crear) -->
                 <div class="flex gap-x-4">
-                
-                 <CreateButton @click="openModalForm(1)">
-                     <i class="fas fa-plus mr-1"></i>
-                     Crear
-                 </CreateButton>
+                    <!-- Botón PDF -->
+                    <button
+                        @click="downloadPdf"
+                        class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                    >
+                        <i class="fa fa-file mr-2" aria-hidden="true"></i>
+                        PDF
+                    </button>
+
+                    <!-- Botón Crear -->
+
+                    <CreateButton
+                        @click="openModalForm(1)"
+                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                    >
+                        <i class="fas fa-plus mr-2"></i>
+                        Crear
+                    </CreateButton>
                 </div>
- 
-             </div>
+
+                <!-- Barra de búsqueda -->
+                <SearchProgram
+                    v-model:search="searchTerm"
+                    @search="handleSearch"
+                    class="ml-auto"
+                />
+            </div>
         </template>
 
         <div class="p-4 bg-white rounded-lg shadow-xs">
@@ -189,7 +238,7 @@ const activateProgram = (program) => {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y">
-                            <tr v-for="program in programs.data" :key="program.id" class="text-gray-700">
+                            <tr v-for="program in filteredProgram" :key="program.id" class="text-gray-700">
                                 <td class="px-4 py-3 text-sm">
                                     {{ program.names_pro }}
                                 </td>
@@ -223,52 +272,81 @@ const activateProgram = (program) => {
             </div>
         </div>
 
-        <!-- Modal para el formulario -->
-        <Modal :show="showModalForm" @close="closeModalForm">
-            <div class="p-6 space-y-4">
-                <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
+      <!-- Modal para el formulario -->
+<Modal :show="showModalForm" @close="closeModalForm">
+    <div class="p-6 w-full max-w-md mx-auto">
+        <!-- Icono representativo -->
+        <div class="flex justify-center mb-4">
+            <i class="fas fa-book-open text-4xl text-indigo-600"></i> <!-- Icono de libro -->
+        </div>
+
+        <!-- Título del modal -->
+        <h2 class="text-lg font-medium text-gray-900 mb-4 text-center">{{ title }}</h2>
+
+        <!-- Campos del formulario -->
+        <div class="space-y-4">
+            <!-- Nombre del Programa -->
+            <div>
                 <InputLabel for="names_pro" value="Nombre del Programa" />
-                <TextInput v-model="form.names_pro" required />
+                <TextInput v-model="form.names_pro" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                 <InputError class="mt-1" :message="form.errors.names_pro" />
-
-                <InputLabel for="code_pro" value="Código del Programa" />
-                <TextInput v-model="form.code_pro" required />
-                <InputError class="mt-1" :message="form.errors.code_pro" />
-
-                <InputLabel for="version" value="Versión" />
-                <TextInput v-model="form.version" required />
-                <InputError class="mt-1" :message="form.errors.version" />
-                <div class="flex justify-end gap-x-2">
-                    <SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-                    <CreateButton @click="save">Guardar</CreateButton>
-                </div>
             </div>
 
-            
-        </Modal>
+            <!-- Código del Programa -->
+            <div>
+                <InputLabel for="code_pro" value="Código del Programa" />
+                <TextInput v-model="form.code_pro" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                <InputError class="mt-1" :message="form.errors.code_pro" />
+            </div>
+
+            <!-- Versión -->
+            <div>
+                <InputLabel for="version" value="Versión" />
+                <TextInput v-model="form.version" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                <InputError class="mt-1" :message="form.errors.version" />
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="mt-6 flex justify-center gap-x-2">
+            <SecondaryButton @click="closeModalForm" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Cancelar
+            </SecondaryButton>
+            <EditButton @click="save">
+                Guardar
+            </EditButton>
+        </div>
+    </div>
+</Modal>
 
         <!-- Modal para eliminación -->
-        <Modal :show="showModalDel" @close="closeModaldel">
-            <div class="p-6">
-                <h1>¿Estás seguro de realizar esta acción?</h1>
-                Tenga en cuenta que esta información no se eliminará, solo se cambia el estado a Inactivo.
-            </div>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModaldel">Cancelar</SecondaryButton>
-                <DangerButton @click="deleteprogram">Sí, seguro</DangerButton>
-            </div>
-        </Modal>
+<Modal :show="showModalDel" @close="closeModaldel">
+    <div class="p-6 w-full max-w-md mx-auto">
+        <!-- Icono representativo -->
+        <div class="flex justify-center mb-4">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-600"></i> <!-- Icono de advertencia -->
+        </div>
+
+        <!-- Título y mensaje -->
+        <h1 class="text-lg font-semibold text-gray-900 text-center mb-2">
+            ¿Estás seguro de realizar esta acción?
+        </h1>
+        <p class="text-sm text-gray-600 text-center">
+            Tenga en cuenta que esta información no se eliminará, solo se cambiará el estado a <strong>Inactivo</strong>.
+        </p>
+
+        <!-- Botones -->
+        <div class="mt-6 flex justify-center gap-x-4">
+            <SecondaryButton @click="closeModaldel" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Cancelar
+            </SecondaryButton>
+            <DangerButton @click="deleteprogram" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Sí, seguro
+            </DangerButton>
+        </div>
+    </div>
+</Modal>
     </AuthenticatedLayout>
 </template>
 
-<style>
-/* Personalizar el tamaño y posición de las alertas */
-.swal2-popup-small {
-    width: 300px !important; /* Ajusta el tamaño aquí */
-}
 
-.swal2-container-right {
-    right: 10px !important; /* Ajusta la posición aquí */
-    top: 10px !important;
-}
-</style>

@@ -107,7 +107,7 @@
       </NavLink>
       
       <div class="space-y-6">
-        <GreenButton type="submit">{{ isEdit ? 'Actualizar' : 'Crear' }}</GreenButton>
+        <EditButton type="submit">{{ isEdit ? 'Actualizar' : 'Crear' }}</EditButton>
       </div>
     </div>
     
@@ -119,7 +119,8 @@ import { useForm } from '@inertiajs/vue3';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputError from '@/Components/InputError.vue';
 import NavLink from '@/Components/NavLink.vue';
-import GreenButton from '@/Components/GreenButton.vue';
+
+import EditButton from '@/Components/EditButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 // Props
 const props = defineProps({
@@ -140,7 +141,7 @@ const props = defineProps({
       address: {
         address_add: ''
       },
-      indexCards: {
+      prueba: {
         index_card_id: ''
       }
     }),
@@ -152,8 +153,8 @@ const props = defineProps({
   index_cards: Array,
 
 });
-console.log(props.index_cards);
-console.log(props.user);
+console.log("User data:", props.user);
+console.log("Index cards:", props.index_cards);
 // Form
 const form = useForm({
   name: props.user.name,
@@ -166,7 +167,7 @@ const form = useForm({
   telephone_con: props.user.contacts?.telephone_con || '',
   email_con: props.user.contacts?.email_con || '',
   address_add: props.user.address?.addres_add || '',
- index_card_id: props.user.indexCards?.index_card_id || ''
+ index_card_id: props.user.prueba?.index_card_id || ''
  
 });
 

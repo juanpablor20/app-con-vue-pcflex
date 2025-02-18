@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\Relationship;
 use Illuminate\Database\Eloquent\Model;
 
 class Borrower_users extends Model
@@ -39,6 +40,10 @@ class Borrower_users extends Model
         return $this->hasOne(Addresses::class, 'id_user_add', 'id');
     }
 
+    public function prueba()
+    {
+        return $this->hasOne(Relationships::class, 'user_rel_id', 'id');
+    }
     public function services()
     {
         return $this->hasMany(Services::class, 'user_id');

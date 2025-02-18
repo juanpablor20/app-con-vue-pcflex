@@ -29,20 +29,24 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Tipo de Equipo</th>
-                <th>Caracterisicas</th>
-                <th>Numero de Seirie</th>
+                <th>fecha de Prestamos</th>
+                <th>Fecha de devolucion</th>
+                <th>Numero Documento</th>
+                <th>Numero Serie</th>
+                <th>Ambiente</th>
                 <th>Estado</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($equipments as $equipment)
+            @foreach($services as $service)
             <tr>
-                <td>{{ $equipment->id }}</td>
-                <td>{{ $equipment->type_equi }}</td>
-                <td>{{ $equipment->characteristics }}</td>
-                <td>{{ $equipment->serie_equi  }}</td>
-                <td>{{ $equipment->status }}</td>
+                <td>{{ $service->id }}</td>
+                <td>{{ $service->date_ser }}</td>
+                <td>{{ $service->return_ser}} </td>
+                <td>{{ $service->users->number_identification }}</td>
+                <td>{{ $service->equipment->serie_equi }}</td>
+                <td>{{ $service->environment->names }}</td>
+                <td>{{ $service->status }}</td>
             </tr>
             @endforeach
         </tbody>

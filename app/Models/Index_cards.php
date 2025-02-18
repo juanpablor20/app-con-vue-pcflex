@@ -16,8 +16,10 @@ class Index_cards extends Model
     protected $fillable = ['number', 'program_id'];
     use HasFactory;
 
+   
     public function programs()
     {
-        return $this->belongsTo(Programs::class);
+        return $this->belongsTo(Programs::class, 'program_id');
     }
+    
 }

@@ -1,14 +1,49 @@
 <template>
 	<AuthenticatedLayout>
-	  <template #header>
-		<div class="page-pretitle">Panel Principal</div>
-		<h2 class="page-title">PcFlex</h2>
-		<div  class="flex items-center space-x-4 ml-auto">
-		  <GreenButton @click="openModalForm(1)">Registrar Prestamo</GreenButton>
-		  <DangerButton @click="openModalForm(2)">Registrar Devolucion</DangerButton>
+	<template #header>
+  <div class="flex items-center justify-between">
+ <!-- Título con icono (centro) -->
+    <div class="flex items-center space-x-3">
+      <i class="fas fa-tachometer-alt text-2xl text-blue-500"></i> <!-- Icono de dashboard -->
+      <div>
+        <div class="page-pretitle text-gray-500">Panel Principal</div>
+        <h2 class="page-title text-gray-800">PcFlex</h2>
+      </div>
+    </div>
+   <GreenButton @click="openModalForm(1)">
+        <i class="fas fa-hand-holding mr-2"></i> <!-- Icono de préstamo -->
+        Registrar Préstamo
+      </GreenButton>
+      <DangerButton @click="openModalForm(2)">
+        <i class="fas fa-undo-alt mr-2"></i> <!-- Icono de devolución -->
+        Registrar Devolución
+      </DangerButton>
+    <!-- Buscador y botón PDF (izquierda) -->
+   
 
-		</div>
-	  </template>
+   
+
+    <!-- Botones de acciones (derecha) -->
+    <div class="flex items-center space-x-4">
+	<button
+        @click="downloadPdf"
+        class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
+      >
+        <i class="fas fa-file-pdf mr-2"></i> <!-- Icono de PDF -->
+        PDF
+      </button>
+      <div class="flex items-center space-x-2">
+      <SearchService
+        v-model:search="searchTerm"
+        @search="handleSearch"
+        class="ml-auto"
+      />
+      
+    </div>
+    </div>
+  </div>
+</template>
+   
   
 	  <div class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs">
 		<div class="overflow-x-auto w-full">
@@ -24,7 +59,7 @@
 			  </tr>
 			</thead>
 			<tbody class="bg-white divide-y">
-			  <tr v-for="service in services.data" :key="service.id" class="text-gray-700">
+			  <tr v-for="service in filteredservices" :key="service.id" class="text-gray-700">
 				<td class="px-4 py-3 text-sm">
 				  {{ service.date_ser }}
 				</td>
@@ -57,60 +92,138 @@
 		</div>
 	  </div>
   
-	  <Modal :show="showModalForm" @close="closeModalForm">
-		<div class="p-6 space-y-4">
-		  <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
-		  <InputLabel for="number" value="Número de Documento" />
-		  <TextInput v-model="form.user_borrower_id" required />
-		  <InputError class="mt-1" :message="form.errors.user_borrower_id" />
-		  <InputLabel for="" value="Numero de Serie"/>
-		  <TextInput v-model="form.equipment_id" required />
-          <InputError class="mt-1" :message="form.errors.equipment_id" />
+	 <Modal :show="showModalForm" @close="closeModalForm">
+  <div class="p-8 space-y-6 bg-white rounded-lg">
+    <!-- Encabezado del modal con icono -->
+    <div class="flex items-center space-x-3">
+      <i class="fas fa-exchange-alt text-2xl text-blue-600"></i> <!-- Icono de intercambio -->
+      <h2 class="text-xl font-semibold text-gray-900">{{ title }}</h2>
+    </div>
 
-		  <InputLabel for="environment_id" value="Ambiente a Trasladar" class="mt-4" />
-		  <select v-model="form.environment_id" class="mt-1 w-1/2">
-			  <option v-for="environment in environments" :key="environment.id" :value="environment.id">
-				  {{ environment.names }}
-			  </option>
-		  </select>
-		  <InputError class="mt-1" :message="form.errors.environment_id" />
+    <!-- Campo: Número de Documento -->
+    <div class="space-y-2">
+      <InputLabel for="number" value="Número de Documento" class="font-medium text-gray-700" />
+      <div class="relative">
+        <i class="fas fa-id-card absolute left-3 top-3 text-gray-400"></i> <!-- Icono de documento -->
+        <TextInput
+          v-model="form.user_borrower_id"
+          id="number"
+          required
+          placeholder="Ingrese el número de documento"
+          class="w-full pl-10"
+        />
+      </div>
+      <InputError class="mt-1" :message="form.errors.user_borrower_id" />
+    </div>
 
+    <!-- Campo: Número de Serie -->
+    <div class="space-y-2">
+      <InputLabel for="serie" value="Número de Serie" class="font-medium text-gray-700" />
+      <div class="relative">
+        <i class="fas fa-barcode absolute left-3 top-3 text-gray-400"></i> <!-- Icono de código de barras -->
+        <TextInput
+          v-model="form.equipment_id"
+          id="serie"
+          required
+          placeholder="Ingrese el número de serie"
+          class="w-full pl-10"
+        />
+      </div>
+      <InputError class="mt-1" :message="form.errors.equipment_id" />
+    </div>
 
-		  <div class="mt-6 flex justify-end gap-4">
-			<SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-			<GreenButton @click="save">Guardar</GreenButton>
-		  </div>
-		</div>
-  
-		
-	  </Modal>
+    <!-- Campo: Ambiente a Trasladar -->
+    <div class="space-y-2">
+      <InputLabel for="environment_id" value="Ambiente a Trasladar" class="font-medium text-gray-700" />
+      <div class="relative">
+        <i class="fas fa-door-open absolute left-3 top-3 text-gray-400"></i> <!-- Icono de puerta -->
+        <select
+          v-model="form.environment_id"
+          id="environment_id"
+          class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Seleccione un ambiente</option>
+          <option v-for="environment in environments" :key="environment.id" :value="environment.id">
+            {{ environment.names }}
+          </option>
+        </select>
+      </div>
+      <InputError class="mt-1" :message="form.errors.environment_id" />
+    </div>
 
-	  <!-- modal devolucion -->
-	  <Modal :show="showModaldevolution" @close="closeModalForm">
-		<div class="p-6 space-y-4">
-		  <h2 class="text-lg font-medium text-gray-900">{{ title }}</h2>
-		  <InputLabel for="number" value="Número de Documento" />
-		  <TextInput v-model="form.user_returner_id" required />
-		  <InputError class="mt-1" :message="form.errors.user_returner_id" />
-		  <InputLabel for="" value="Numero de Serie"/>
-		  <TextInput v-model="form.equipment_id" required />
-          <InputError class="mt-1" :message="form.errors.equipment_id" />
+    <!-- Botones de acción -->
+    <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+      <SecondaryButton @click="closeModalForm" class="bg-gray-300 hover:bg-gray-400 text-gray-700">
+        <i class="fas fa-times mr-2"></i> Cancelar
+      </SecondaryButton>
+      <EditButton @click="save" class="bg-blue-600 hover:bg-blue-700 text-white">
+        <i class="fas fa-save mr-2"></i> Guardar
+      </EditButton>
+    </div>
+  </div>
+</Modal>
 
+	<Modal :show="showModaldevolution" @close="closeModalForm">
+  <div class="p-6 space-y-4 bg-white rounded-lg shadow-lg">
+    <!-- Título con icono -->
+    <div class="flex items-center space-x-2">
+      <i class="fas fa-undo-alt text-blue-500 text-xl"></i> <!-- Icono de devolución -->
+      <h2 class="text-lg font-semibold text-gray-800">{{ title }}</h2>
+    </div>
 
-		  <div class="mt-6 flex justify-end gap-3">
-			<SecondaryButton @click="closeModalForm">Cancelar</SecondaryButton>
-			<GreenButton @click="save">Guardar</GreenButton>
-		  </div>
-		</div>
-  
-		
-	  </Modal>
+    <!-- Campo para el número de documento -->
+    <div class="space-y-2">
+      <InputLabel for="number" value="Número de Documento" class="text-gray-700" />
+      <div class="relative">
+        <i class="fas fa-id-card absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i> <!-- Icono de documento -->
+        <TextInput 
+          v-model="form.user_returner_id" 
+          required 
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <InputError class="mt-1 text-sm text-red-600" :message="form.errors.user_returner_id" />
+    </div>
+
+    <!-- Campo para el número de serie -->
+    <div class="space-y-2">
+      <InputLabel for="serial" value="Número de Serie" class="text-gray-700" />
+      <div class="relative">
+        <i class="fas fa-barcode absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i> <!-- Icono de serie -->
+        <TextInput 
+          v-model="form.equipment_id" 
+          required 
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <InputError class="mt-1 text-sm text-red-600" :message="form.errors.equipment_id" />
+    </div>
+
+    <!-- Botones de acción con iconos -->
+    <div class="mt-6 flex justify-end gap-3">
+      <SecondaryButton 
+        @click="closeModalForm" 
+        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 flex items-center space-x-2"
+      >
+        <i class="fas fa-times"></i> <!-- Icono de cancelar -->
+        <span>Cancelar</span>
+      </SecondaryButton>
+      <EditButton 
+        @click="save" 
+       
+      >
+      
+        <span>Guardar</span>
+      </EditButton>
+    </div>
+  </div>
+</Modal>
 	</AuthenticatedLayout>
   </template>
   
   <script setup>
   import { defineProps } from 'vue';
-  import { ref } from "vue";
+  import { ref, computed } from "vue";
   import { useForm } from '@inertiajs/vue3';
   
   import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -126,6 +239,8 @@
   import NavLink from '@/Components/NavLink.vue';
   import ShowButton from '@/Components/ShowButton.vue';
 import CreateButton from '@/Components/CreateButton.vue';
+  import EditButton from '@/Components/EditButton.vue';
+  import SearchService from '@/Components/SearchService.vue';
   
   const showModalForm = ref(false);
   const showModaldevolution = ref(false);
@@ -147,7 +262,26 @@ import CreateButton from '@/Components/CreateButton.vue';
   
   const title = ref('');
   const operation = ref(1);
-  
+  const downloadPdf = () => {
+    window.location.href = route('pdfservices');
+};
+
+
+const searchTerm = ref("");
+const filteredservices = computed(() => {
+  if (!searchTerm.value) {
+    return props.services.data;
+  }
+  const lowerCaseSearchTerm = searchTerm.value.toLowerCase();
+  return props.services.data.filter((service) => {
+    return (
+      service.equipment.serie_equi.toLowerCase().includes(lowerCaseSearchTerm) ||
+      service.users.number_identification.toLowerCase().includes(lowerCaseSearchTerm) ||
+      service.environment.names.toLowerCase().includes(lowerCaseSearchTerm)
+    );
+  });
+});
+
   const openModalForm = (op) => {
 	operation.value = op;
 	if (op === 1) {
@@ -163,6 +297,8 @@ import CreateButton from '@/Components/CreateButton.vue';
 	showModalForm.value = false;
 	showModaldevolution.value = false;
 	form.reset();
+	form.clearErrors();
+
   };
   
   const save = () => {

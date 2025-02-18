@@ -103,7 +103,7 @@ class Borrower_usersController extends Controller
 
     public function edit(string $id)
     {
-        $user = Borrower_users::with('contacts', 'address', 'indexCards')->find($id);
+        $user = Borrower_users::with('contacts', 'address', 'indexCards', 'prueba')->find($id);
         $index_Cards = Index_cards::where('status', 'activo')->get();
         
         return Inertia::render('Borrower_users/Edit', [
@@ -152,13 +152,13 @@ class Borrower_usersController extends Controller
                 'required_if:roll,aprendiz', // Esta regla solo hace obligatorio index_card_id si el rol es aprendiz
             ],
         ]);
-        // if($user->roll === 'aprendiz'){
-        //     if($user->index_card_id){
-        //         $user->index_card_id->update([
-        //             'index_card_id' => $request->index_card_id,
-        //         ]);
-        //     }
-        // }
+        if($user->roll === 'aprendiz'){
+            if($user->prueba){
+                $user->prueba->update([
+                    'index_card_id' => $request->index_card_id,
+                ]);
+            }
+        }
        
        
         

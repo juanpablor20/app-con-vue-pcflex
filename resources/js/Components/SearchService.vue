@@ -4,7 +4,7 @@
         v-model="localSearch"
         type="text" 
         class="form-input" 
-        placeholder="Nombre del programa..."
+        placeholder="Buscar..."
       />
       <button type="submit" class="bg-blue-500 text-white rounded p-2 ml-2">
         Buscar
@@ -45,7 +45,7 @@
         const searchQuery = this.localSearch.trim() === '' ? {} : { search: this.localSearch };
   
         // Realizamos la petición al servidor con el valor de búsqueda (o sin ella si está vacío)
-        this.$inertia.get(this.route('program.index'), searchQuery);
+        this.$inertia.get(this.route('dashboard'), searchQuery);
       },
     },
   };

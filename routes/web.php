@@ -91,12 +91,15 @@ Route::put('/environments/activate/{id}', [EnvironmentController::class, 'active
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
    
-    Route::get('/search_program', [SearchController::class, 'search'])->name('search_program');
-
+  
 
 //rutas pdf
 
     Route::get('/pdfequipos', [EquipmentController::class, 'pdfequipos'])->name('pdfequipos');
+    Route::get('/pdfservices', [PanelPrincipalController::class, 'pdfservices'])->name('pdfservices');
+    Route::get('/pdfhistorico', [ServiceController::class, 'pdfhistorico'])->name('pdfhistorico');
+    Route::get('/pdfPrograms', [ProgramController::class, 'pdfPrograms'])->name('pdfPrograms');
+    Route::get('/pdfIndexCard', [IndexCardController::class, 'pdfIndexCard'])->name('pdfIndexCard');
     Route::get('/pdfUsuarios', [Borrower_usersController::class, 'pdfUsuarios'])->name('pdfUsuarios');
     //ruta prestamos
 
