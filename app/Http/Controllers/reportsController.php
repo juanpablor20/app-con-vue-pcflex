@@ -9,6 +9,7 @@ use App\Models\Services;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 
 class reportsController extends Controller
 {
@@ -18,11 +19,18 @@ class reportsController extends Controller
             'repors' =>Disability::paginate(),
         ]);
     }
-    public function create(Request $request)
+    public function create($service_id)
     {
-        $serviceId = $request->input('service_id', session('serviceId'));
+       // $serviceId = $request->input('service_id', session('serviceId'));
+
+       
+       $service = Services::find($service_id);
+       if (!$service) {
+        return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
+    }
+
     return Inertia::render('reports/Create', [
-        'serviceId' => $serviceId,
+        'service' => $service,
     ]);
     }
     
@@ -41,11 +49,15 @@ class reportsController extends Controller
         
         $request->validate([
             'description' => 'required|string',
-            'end_date' => 'nullable|date',
+            'end_date' => 'required|date',
             'service_id' => 'required',
         ]);
 
         $service = Services::find($request->input('service_id'));
+
+        if (!$service) {
+            return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
+        }
         $disability = Disability::create([
             'description' => $request->input('description'),
             'end_date' => $request->input('end_date'),
@@ -124,4 +136,29 @@ class reportsController extends Controller
 
         return redirect('repors')->with(['success' => 'Reporte Creado con exito.']);
     }
+    public function destroy(string $id) {
+
+        $report = Disability::findOrFail($id);
+
+        if (!$report) {
+            return redirect()->back()->withErrors(['error' => 'Reporte no encontrado']);
+        }
+        $report->status = 'inactivo';
+        $report->save();
+        return redirect('repors');
+
+    }
+    public function activate(string $id)
+    {
+        $report = Disability::find($id);
+
+        if (!$report) {
+            return redirect()->back()->withErrors(['error' => 'Reporte no encontrado']);
+        }
+        $report->status = 'activo';
+        $report->save();
+        return redirect('repors');
+    }
+
+
 }

@@ -59,9 +59,10 @@ defineProps({
 
         <!-- Contenido Principal -->
         <main class="pt-20"> <!-- Ajuste para el header fijo -->
-            <!-- Sección de Bienvenida -->
-            <section class="bg-blue-50 py-20">
-                <div class="container mx-auto px-6 text-center">
+            <!-- Sección de Bienvenida con Imagen de Fondo -->
+            <section class="relative bg-blue-50 py-32">
+                <div class="absolute inset-0 bg-cover bg-center opacity-50" style="background-image: url('/images/1_resultado.webp');"></div>
+                <div class="container mx-auto px-6 text-center relative z-10">
                     <h1 class="text-4xl font-bold text-gray-800 mb-4">Bienvenido a Equipres</h1>
                     <p class="text-lg text-gray-600">
                         Gestiona y presta equipos de la biblioteca de manera eficiente. Regístrate o inicia sesión para comenzar.
@@ -77,56 +78,93 @@ defineProps({
                 </div>
             </section>
 
+            <!-- Sección de Alerta Importante -->
+            <section class="bg-yellow-100 py-6">
+                <div class="container mx-auto px-6 text-center">
+                    <p class="text-yellow-800 font-semibold">
+                        ⚠️ Es importante tener en cuenta que los usuarios que prestan el equipo deben ser los mismos que lo devuelven. Esto evita sanciones, ya que el sistema detecta cualquier inconsistencia como una infracción.
+                    </p>
+                </div>
+            </section>
+
             <!-- Sección de Equipos Disponibles -->
             <section class="py-16">
                 <div class="container mx-auto px-6">
-                    <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">Equipos Disponibles</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">Equipos Con los que contamos</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                             <h3 class="text-xl font-semibold text-gray-800 mb-2">Laptop HP EliteBook</h3>
-                            <p class="text-gray-600 mb-4">Número de Serie: 123456789</p>
-                            <button class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">
-                                Solicitar Préstamo
-                            </button>
+                            
                         </div>
                         <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                             <h3 class="text-xl font-semibold text-gray-800 mb-2">Proyector Epson</h3>
-                            <p class="text-gray-600 mb-4">Número de Serie: 987654321</p>
-                            <button class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">
-                                Solicitar Préstamo
-                            </button>
+                           
                         </div>
                         <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                             <h3 class="text-xl font-semibold text-gray-800 mb-2">Cámara Canon EOS</h3>
-                            <p class="text-gray-600 mb-4">Número de Serie: 456789123</p>
-                            <button class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">
-                                Solicitar Préstamo
-                            </button>
+                            
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Sección de Instrucciones -->
-            <section class="bg-blue-50 py-16">
+            <!-- Sección de Galería de Imágenes -->
+            <section class="py-16">
                 <div class="container mx-auto px-6">
-                    <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">¿Cómo Solicitar un Préstamo?</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">1. Regístrate o Inicia Sesión</h3>
-                            <p class="text-gray-600">Para solicitar un préstamo, primero debes registrarte o iniciar sesión en tu cuenta.</p>
+                    <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">Nuestros Espacios</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="h-48 md:h-64">
+                            <img aria-hidden="true" class="object-cover w-full h-full rounded-lg" src="/images/1_resultado.webp" alt="Espacio de trabajo 1" />
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">2. Selecciona el Equipo</h3>
-                            <p class="text-gray-600">Busca el equipo que necesitas y haz clic en "Solicitar Préstamo".</p>
+                        <div class="h-48 md:h-64">
+                            <img aria-hidden="true" class="object-cover w-full h-full rounded-lg" src="/images/2_resultado.webp" alt="Espacio de trabajo 2" />
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">3. Confirma tu Solicitud</h3>
-                            <p class="text-gray-600">Revisa los detalles del préstamo y confirma tu solicitud.</p>
+                        <div class="h-48 md:h-64">
+                            <img aria-hidden="true" class="object-cover w-full h-full rounded-lg" src="/images/3_resultado.webp" alt="Espacio de trabajo 3" />
+                        </div>
+                        <div class="h-48 md:h-64">
+                            <img aria-hidden="true" class="object-cover w-full h-full rounded-lg" src="/images/4_resultado.webp" alt="Espacio de trabajo 4" />
                         </div>
                     </div>
                 </div>
             </section>
+
+           <!-- Sección de Instrucciones -->
+<section class="bg-blue-50 py-16">
+    <div class="container mx-auto px-6">
+        <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">¿Cómo Solicitar un Préstamo?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Paso 1 -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <i class="fas fa-building text-4xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">1. Visita la Biblioteca</h3>
+                <p class="text-gray-600">
+                    Dirígete a la biblioteca y regístrate como usuario. Asegúrate de llevar tu documento de identificación.
+                </p>
+            </div>
+            <!-- Paso 2 -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+             <i class="fas fa-id-card text-4xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">2. Registra tu Documento</h3>
+                
+                <p class="text-gray-600">
+                    Proporciona tu número de documento para que el personal pueda identificarte y registrar tu solicitud.
+                </p>
+            </div>
+            <!-- Paso 3 -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+             <i class="fas fa-laptop text-4xl text-blue-500 mb-4"></i> 
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">3. Solicita el Equipo</h3>
+                <p class="text-gray-600">
+                    Indica el equipo que necesitas y el personal te lo entregará. ¡Así de fácil!
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
         </main>
 
         <!-- Footer -->

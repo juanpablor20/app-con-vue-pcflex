@@ -15,71 +15,72 @@ class DevolucionController extends Controller
     public function update(Request $request)
     {
         request()->validate(Services::$Rules);
-
+    
         $equipment = Equipment::where('serie_equi', $request->equipment_id)->first();
         $user = Borrower_users::where('number_identification', $request->user_returner_id)->first();
-
-        if(!$equipment)
-        {
-            return redirect()->back()->withErrors(['error' => 'El equipo  no existe']);
+    
+        if (!$equipment) {
+            return redirect()->back()->withErrors(['error' => 'El equipo no existe']);
         }
-        if(!$user)
-        {
+        if (!$user) {
             return redirect()->back()->withErrors(['error' => 'El usuario no existe']);
         }
-        switch($equipment->status)
-        {
+    
+        switch ($equipment->status) {
             case 'inactivo':
-                return redirect()->back()->withErrors(['error' => 'Este equipo esta marcado como inactivo']);
-                case 'reparacion':
-                    return redirect()->back()->withErrors(['error' => 'Este equipo esta en reparacion']);
-                    case 'disponible':
-                        return redirect()->back()->withErrors(['error' => 'este equipo no esta marcado como prestado']);
+                return redirect()->back()->withErrors(['error' => 'Este equipo está marcado como inactivo']);
+            case 'reparacion':
+                return redirect()->back()->withErrors(['error' => 'Este equipo está en reparación']);
+            case 'disponible':
+                return redirect()->back()->withErrors(['error' => 'Este equipo no está marcado como prestado']);
         }
-      $service = Services::where('equipment_id', $equipment->id)
-      ->where('status', 'pendiente')
-      ->first();
-      if(!$service){
-        return redirect()->back()->withErrors(['error' => 'servicio no encontrado']);
-      }
+    
+        $service = Services::where('equipment_id', $equipment->id)
+            ->where('status', 'pendiente')
+            ->first();
+    
+        if (!$service) {
+            return redirect()->back()->withErrors(['error' => 'Servicio no encontrado']);
+        }
+    
         $usuarioPrestatario = Borrower_users::find($service->user_borrower_id);
-        if(!$usuarioPrestatario)
-        {
-            return redirect()->back()->withErrors(['error' => 'este usuario no tiene prestamos']);
+
+       
+        if (!$usuarioPrestatario) {
+            return redirect()->back()->withErrors(['error' => 'Este usuario no tiene préstamos']);
         }
-        //se inicia la tranciccion en base de datos 
+    
+        // Se inicia la transacción en la base de datos
         DB::beginTransaction();
         try {
-        $equipment->status = 'disponible';
-        $equipment->save();
-
-        $returnDate = Carbon::now();
-       $service->status = 'devuelto';
-       $service->return_ser = $returnDate;
-       $service->environment_id = 4;
-       $service->save();
-
-            DB::commit();
-
+            // Actualizar el estado del equipo
+            $equipment->status = 'disponible';
+            $equipment->save();
+    
+            // Actualizar el servicio
+            $returnDate = Carbon::now();
+            $service->status = 'devuelto';
+            $service->return_ser = $returnDate;
+            $service->environment_id = 4;
+    
+            // Asignar el bibliotecario que realiza la devolución
             $bibliotecario = Auth::id();
-            $service = Services::where('librarian_borrower_id', $bibliotecario)->first();
-            
-            if (!$service) {
-
-                $service->librarian_borrower_id = $bibliotecario;
-                $service->save();
-            }
-            if($usuarioPrestatario->id !==  $user->id)
-            {
+            $service->librarian_borrower_id = $bibliotecario;
+    
+            // Si el usuario que devuelve es diferente al que prestó
+            if ($usuarioPrestatario->id !== $user->id) {
                 $service->user_returner_id = $user->id;
-                $service->save();
-                return redirect()->route('repors.create', ['service_id' => $service->id]);
-
+                $service->save(); // Guardar los cambios antes de redirigir
+                DB::commit(); // Confirmar la transacción
+                return redirect()->route('reports.create', ['service_id' => $service->id]); // Redirigir a reports.create
             }
-            
-            return redirect()->back()->with(['success' => 'Devolucion Exitosa..']);
-
-        }catch(\Exception $e) {
+    
+            // Si el usuario que devuelve es el mismo que prestó
+            $service->save();
+            DB::commit();
+    
+            return redirect()->back()->with(['success' => 'Devolución exitosa.']);
+        } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', $e->getMessage());
         }

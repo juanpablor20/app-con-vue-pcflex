@@ -8,55 +8,73 @@ import CreateButton from "@/Components/CreateButton.vue";
 import DeleteButton from "@/Components/DeleteButton.vue";
 import EditButton from "@/Components/EditButton.vue";
 import ShowButton from "@/Components/ShowButton.vue";
-import ReactivateButton from "@/Components/ReactivateButton.vue";
+import GreenButton from '@/Components/GreenButton.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import { useForm } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     repors: Object,
 });
 
+const v = ref({ id: '' });
 const showModalDel = ref(false);
-const userToDelete = ref(null);
+
 const form = useForm({
     names: '',
-   
 });
 
-const openModalDel = (user) => {
+const openModalDel = (repor) => {
     showModalDel.value = true;
-    userToDelete.value = user;
+    v.value = { ...repor };
 };
 
 const closeModalDel = () => {
-    console.log('Cerrando modal');
     showModalDel.value = false;
-    userToDelete.value = null;
 };
 
-const deleteUser = () => {
-    console.log('Intentando eliminar usuario:', userToDelete.value);
-    form.delete(route('Borrower_users.destroy', userToDelete.value.id), {
+const deleteReport = () => {
+    form.delete(route('repors.destroy', v.value.id), {
         onSuccess: () => {
-            console.log('Usuario eliminado con éxito');
             closeModalDel();
+            showSuccessAlert("Reporte Inactivado con éxito");
         },
         onError: (errors) => {
-            console.error('Error al eliminar usuario:', errors);
+            closeModalDel();
+            showErrorAlert(errors.error);
         }
     });
 };
 
-const activateUser = (user) => {
-    form.put(route('Borrower_users.activate', user.id), {
-        onSuccess: () => { 
-            alert('Usuario activado con éxito'); 
+const activateRepor = (repor) => {
+    form.put(route('repors.activate', repor.id), {
+        onSuccess: () => {
+            showSuccessAlert("Reporte Activado con éxito");
         },
         onError: (errors) => {
-            console.error('Error al activar usuario:', errors);
+            showErrorAlert(errors.error);
         }
+    });
+};
+
+const showSuccessAlert = (message) => {
+    Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: message,
+        showConfirmButton: false,
+        timer: 8000,
+        toast: true,
+    });
+};
+
+const showErrorAlert = (message) => {
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: message,
     });
 };
 </script>
@@ -78,28 +96,14 @@ const activateUser = (user) => {
         </template>
 
         <div class="p-4 bg-white rounded-lg shadow-xs">
-            <div class="inline-flex overflow-hidden mb-4 w-full bg-white rounded-lg shadow-md">
-                <div class="flex justify-center items-center w-12 bg-blue-500">
-                    <svg class="w-6 h-6 text-white fill-current" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM21.6667 28.3333H18.3334V25H21.6667V28.3333ZM21.6667 21.6666H18.3334V11.6666H21.6667V21.6666Z">
-                        </path>
-                    </svg>
-                </div>
-
-               
-            </div>
-
             <div class="overflow-hidden mb-8 w-full rounded-lg border shadow-xs">
                 <div class="overflow-x-auto w-full">
                     <table class="w-full whitespace-no-wrap">
                         <thead>
-                            <tr
-                                class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b">
+                            <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 border-b">
                                 <th class="px-4 py-3">Descripción</th>
                                 <th class="px-4 py-3">Fecha Inicio</th>
                                 <th class="px-4 py-3">Fecha Fin</th>
-                                
                                 <th class="px-4 py-3">Estado</th>
                                 <th class="px-4 py-3">Acciones</th>
                             </tr>
@@ -115,11 +119,18 @@ const activateUser = (user) => {
                                 <td class="px-4 py-3 text-sm">
                                     {{ repor.end_date }}
                                 </td>
-
                                 <td class="px-4 py-3 text-sm">
                                     {{ repor.status }}
                                 </td>
-                               
+                                <td class="px-4 py-3 text-sm">
+                                    <!-- Mostrar botón de Inactivar o Reactivar según el estado -->
+                                    <template v-if="repor.status === 'activo'">
+                                        <DeleteButton @click="openModalDel(repor)">Inactivar</DeleteButton>
+                                    </template>
+                                    <template v-else>
+                                        <GreenButton @click="activateRepor(repor)">Reactivar</GreenButton>
+                                    </template>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -129,15 +140,32 @@ const activateUser = (user) => {
                 </div>
             </div>
         </div>
-        <Modal :show="showModalDel" @close="closeModalDel">
-            <div class="p-6">
-                <h1 class="text-lg font-semibold">¿Estás seguro de realizar esta acción?</h1>
-                <p>Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="mt-6 flex justify-end space-x-4">
-                <SecondaryButton @click="closeModalDel">Cancelar</SecondaryButton>
-                <DangerButton @click="deleteUser">Sí, seguro</DangerButton>
-            </div>
-        </Modal>
+
+       <Modal :show="showModalDel" @close="closeModalDel">
+    <div class="p-6 bg-white rounded-lg shadow-lg">
+        <!-- Encabezado del modal con icono -->
+        <div class="flex items-center space-x-3 mb-4">
+            <i class="fas fa-exclamation-circle text-2xl text-yellow-500"></i> <!-- Icono de advertencia -->
+            <h1 class="text-lg font-semibold text-gray-800">¿Estás seguro de realizar esta acción?</h1>
+        </div>
+
+        <!-- Mensaje del modal -->
+        <p class="text-gray-600 mb-6">
+            Esta acción no se puede deshacer. ¿Deseas continuar?
+        </p>
+
+        <!-- Botones de acción -->
+        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+            <SecondaryButton @click="closeModalDel" class="w-full sm:w-auto">
+                <i class="fas fa-times mr-2"></i> <!-- Icono de cancelar -->
+                Cancelar
+            </SecondaryButton>
+            <DangerButton @click="deleteReport" class="w-full sm:w-auto">
+                <i class="fas fa-check mr-2"></i> <!-- Icono de confirmar -->
+                Sí, seguro
+            </DangerButton>
+        </div>
+    </div>
+</Modal>
     </AuthenticatedLayout>
-</template>
+</template>  

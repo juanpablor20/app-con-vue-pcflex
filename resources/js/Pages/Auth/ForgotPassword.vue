@@ -30,7 +30,7 @@ const submit = () => {
 				<img
 					aria-hidden="true"
 					class="object-cover w-full h-full"
-					src="/images/forgot-password-office.jpeg"
+					src="/images/3_resultado.webp"
 					alt="Office"
 				/>
 			</div>
