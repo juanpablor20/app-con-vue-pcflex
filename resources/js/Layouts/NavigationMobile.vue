@@ -18,134 +18,106 @@
     <aside v-show="$page.props.showingMobileMenu" class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white md:hidden">
       <div class="py-4 text-gray-500">
         <Link class="ml-6 text-lg font-bold text-gray-800" :href="route('dashboard')">
-        Equipres
-      </Link>
+          Equipres
+        </Link>
         <ul class="mt-6">
+          <!-- Dashboard (visible para ambos roles) -->
           <li class="relative px-6 py-3">
             <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
               <template #icon>
-                <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round"
-                     stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                </svg>
+                <i class="fas fa-tachometer-alt w-5 h-5"></i>
               </template>
               Dashboard
             </ResponsiveNavLink>
           </li>
 
-          <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.index')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Users
-            </ResponsiveNavLink>
-          </li>
+          <!-- Opción "Bibliotecarios" (solo visible para 'coordinador') -->
+          <template v-if="hasRole('coordinador')">
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.index')">
+                <template #icon>
+                  <i class="fas fa-users w-5 h-5"></i>
+                </template>
+                Bibliotecarios
+              </ResponsiveNavLink>
+            </li>
+          </template>
 
-          <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('indexCard.index')" :active="route().current('indexCard.index')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Fichas
-            </ResponsiveNavLink>
-          </li>
-          <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('programs.index')" :active="route().current('programs.index')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Programas
-            </ResponsiveNavLink>
-          </li>
-          <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('environments.index')" :active="route().current('environments.index')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Ambientes
-            </ResponsiveNavLink>
-          </li>
-          <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('repors.index')" :active="route().current('repors.index')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Reportes
-            </ResponsiveNavLink>
-          </li>
-           <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('Borrower_users.index')" :active="route().current('Borrower_users.index')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Usuarios
-            </ResponsiveNavLink>
-          </li>
-           <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('equipments.index')" :active="route().current('equipments.index')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Equipos
-            </ResponsiveNavLink>
-          </li>
-          <li class="relative px-6 py-3">
-            <ResponsiveNavLink :href="route('historial.historico')" :active="route().current('historial.historico')">
-              <template #icon>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </template>
-              Historial
-            </ResponsiveNavLink>
-          </li>
+          <!-- Opciones visibles solo para 'bibliotecario' -->
+          <template v-if="hasRole('bibliotecario')">
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('indexCard.index')" :active="route().current('indexCard.index')">
+                <template #icon>
+                  <i class="fas fa-id-card w-5 h-5"></i>
+                </template>
+                Fichas
+              </ResponsiveNavLink>
+            </li>
 
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('programs.index')" :active="route().current('programs.index')">
+                <template #icon>
+                  <i class="fas fa-laptop-code w-5 h-5"></i>
+                </template>
+                Programas
+              </ResponsiveNavLink>
+            </li>
+
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('environments.index')" :active="route().current('environments.index')">
+                <template #icon>
+                  <i class="fas fa-building w-5 h-5"></i>
+                </template>
+                Ambientes
+              </ResponsiveNavLink>
+            </li>
+
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('repors.index')" :active="route().current('repors.index')">
+                <template #icon>
+                  <i class="fas fa-file-alt w-5 h-5"></i>
+                </template>
+                Reportes
+              </ResponsiveNavLink>
+            </li>
+
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('Borrower_users.index')" :active="route().current('Borrower_users.index')">
+                <template #icon>
+                  <i class="fas fa-user-tag w-5 h-5"></i>
+                </template>
+                Usuarios
+              </ResponsiveNavLink>
+            </li>
+
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('equipments.index')" :active="route().current('equipments.index')">
+                <template #icon>
+                  <i class="fas fa-desktop w-5 h-5"></i>
+                </template>
+                Equipos
+              </ResponsiveNavLink>
+            </li>
+
+            <li class="relative px-6 py-3">
+              <ResponsiveNavLink :href="route('historial.historico')" :active="route().current('historial.historico')">
+                <template #icon>
+                  <i class="fas fa-history w-5 h-5"></i>
+                </template>
+                Historial
+              </ResponsiveNavLink>
+            </li>
+          </template>
+
+          <!-- Opción "Sobre nosotros" (visible para ambos roles) -->
           <li class="relative px-6 py-3">
             <ResponsiveNavLink :href="route('about')" :active="route().current('about')">
               <template #icon>
-                <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round"
-                     stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                      d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
-                </svg>
+                <i class="fas fa-info-circle w-5 h-5"></i>
               </template>
-              About us
+              Sobre nosotros
             </ResponsiveNavLink>
           </li>
-
-       
         </ul>
       </div>
     </aside>
@@ -154,8 +126,14 @@
 
 <script setup>
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
-import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue'
+import { Link, usePage } from '@inertiajs/vue3'
+import { computed } from 'vue'
 
-let showingTwoLevelMenu = ref(false)
+const page = usePage()
+
+// Obtener los roles del usuario autenticado desde los props de Inertia
+const roles = computed(() => page.props.auth.roles || [])
+
+// Función para verificar si el usuario tiene un rol específico
+const hasRole = (role) => roles.value.includes(role)
 </script>
