@@ -45,8 +45,11 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $role = 'Bibliotecario';
+        $user->assignRole($role);
         $user->save();
-        return redirect('users');
+        return redirect('users')->with(['success' => 'Bibliotecario  registrado con éxito.']);
+        
     }
     public function show(string $id)
     {
@@ -69,6 +72,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $request->validate([
+            
             'name' => 'required',
             'last_name' => 'required',
             'type_identification' => 'required',
@@ -81,7 +85,8 @@ class UserController extends Controller
 
         // Actualizar el usuario
         $user->update($request->only('name', 'last_name', 'type_identification', 'number_identification', 'sexo', 'telefono', 'direccion', 'email'));
-        return to_route('users.index');
+        
+        return redirect('users')->with(['success' => 'Bibliotecario Actualizadocon éxito']);
     }
     public function destroy(string $id)
 
@@ -89,5 +94,6 @@ class UserController extends Controller
         $user = User::find($id);
 
         $user->delete();
+        return redirect('users')->with(['success' => 'Bibliotecario Eliminado con éxito']);
     }
 }

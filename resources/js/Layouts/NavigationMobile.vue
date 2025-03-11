@@ -109,15 +109,15 @@
             </li>
           </template>
 
-          <!-- Opción "Sobre nosotros" (visible para ambos roles) -->
-          <li class="relative px-6 py-3">
+          <!-- Opción "Sobre nosotros" -->
+          <!-- <li class="relative px-6 py-3">
             <ResponsiveNavLink :href="route('about')" :active="route().current('about')">
               <template #icon>
                 <i class="fas fa-info-circle w-5 h-5"></i>
               </template>
               Sobre nosotros
             </ResponsiveNavLink>
-          </li>
+          </li> -->
         </ul>
       </div>
     </aside>

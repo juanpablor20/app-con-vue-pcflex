@@ -75,7 +75,8 @@ class Borrower_usersController extends Controller
 
         $request->validate([
             'index_card_id' => [
-                'required_if:roll,aprendiz', // Esta regla solo hace obligatorio index_card_id si el rol es aprendiz
+                'required_if:roll,aprendiz',
+                 // Esta regla solo hace obligatorio index_card_id si el rol es aprendiz
             ],
         ]);
    

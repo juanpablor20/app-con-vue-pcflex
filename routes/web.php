@@ -11,9 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\reportsController;
-use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServiceController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -22,9 +20,8 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
-        //'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+ 
+        
     ]);
 });
 
@@ -33,7 +30,7 @@ Route::get('/', function () {
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/about', fn() => Inertia::render('About'))->name('about');
+    
     Route::get('/dashboard', [PanelPrincipalController::class, 'index'])->name('dashboard');
 
     //rutas reportes

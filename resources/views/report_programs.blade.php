@@ -31,6 +31,7 @@
                 <th>ID</th>
                 <th>Numero de ficha</th>
                 <th>Programa</th>
+                <th>version</th>
             </tr>
         </thead>
         <tbody>
